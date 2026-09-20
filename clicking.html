@@ -10,21 +10,48 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --rack-bg: #06080b;
-      --panel-dark: #0c0f14;
-      --panel-card: #11151c;
-      --panel-elevated: #171c26;
-      --panel-border: #1f2735;
-      --panel-border-bright: #2f3b4f;
+      --rack-bg: #020305;
+      --panel-dark: #05070a;
+      --panel-card: #080b0f;
+      --panel-elevated: #0c1016;
+      --panel-border: #131822;
+      --panel-border-bright: #1b2332;
       --cyan-neon: #00f0ff;
-      --cyan-glow: rgba(0, 240, 255, 0.35);
+      --cyan-glow: rgba(0, 240, 255, 0.4);
       --amber-neon: #ff9d00;
-      --amber-glow: rgba(255, 157, 0, 0.35);
-      --crimson-neon: #ff3366;
+      --amber-glow: rgba(255, 157, 0, 0.4);
+      --crimson-neon: #ff2a55;
       --emerald-neon: #00e676;
       --font-display: 'Chakra Petch', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
       --font-sans: 'Space Grotesk', sans-serif;
+    }
+
+    /* Theme Variants */
+    body.theme-carbon {
+      --cyan-neon: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.35);
+      --rack-bg: #030406;
+      --panel-dark: #07090d;
+      --panel-card: #0b0e14;
+    }
+
+    body.theme-amber {
+      --cyan-neon: #ffaa00;
+      --cyan-glow: rgba(255, 170, 0, 0.45);
+      --amber-neon: #ff6600;
+      --rack-bg: #040302;
+      --panel-dark: #080605;
+      --panel-card: #0e0a07;
+    }
+
+    body.theme-emerald {
+      --cyan-neon: #00ff88;
+      --cyan-glow: rgba(0, 255, 136, 0.4);
+      --amber-neon: #00e5ff;
+      --rack-bg: #010403;
+      --panel-dark: #030806;
+      --panel-card: #060e0a;
     }
 
     * {
@@ -34,7 +61,7 @@
     }
 
     body {
-      background: #06080b;
+      background: var(--rack-bg);
       color: #e2e8f0;
       font-family: var(--font-sans);
       width: 100vw;
@@ -44,21 +71,28 @@
       flex-direction: column;
     }
 
-    /* Brushed Metal Header and Striping */
+    /* Deep Stealth Carbon / Anodized Black Metal */
     .brushed-metal {
-      background-color: #0e1218;
+      background-color: var(--panel-dark);
       background-image: 
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px),
-        linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(0,0,0,0.45) 100%);
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.015) 0%, transparent 80%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.007) 0px, rgba(255,255,255,0.007) 1px, transparent 1px, transparent 4px),
+        linear-gradient(180deg, #090c11 0%, #030407 100%);
     }
 
-    /* Hex Fastener Screws */
+    /* Dark Inset Well */
+    .dark-well {
+      background: #030508;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9), 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    /* Black Oxide Fasteners */
     .hex-screw {
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #475569 0%, #1e293b 70%, #0f172a 100%);
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.8);
+      background: radial-gradient(circle at 35% 35%, #2a3342 0%, #111620 70%, #05080c 100%);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.9);
       position: relative;
     }
     .hex-screw::after {
@@ -67,10 +101,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 6px;
-      height: 1.8px;
-      background: #090d13;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.15);
+      width: 5.5px;
+      height: 1.4px;
+      background: #040608;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.08);
     }
 
     /* Rotary Knobs */
@@ -78,26 +112,27 @@
       touch-action: none;
       cursor: ns-resize;
       transition: transform 0.05s ease;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.75));
     }
     .rotary-knob:active {
       cursor: grabbing;
     }
 
-    /* CRT Phosphor Screen Styling */
+    /* Deep Phosphor CRT Screen Styling */
     .scope-glass {
       position: relative;
-      background: radial-gradient(ellipse at center, #070f1a 0%, #020508 100%);
-      box-shadow: inset 0 0 55px rgba(0, 240, 255, 0.05), inset 0 2px 14px rgba(0,0,0,0.95);
+      background: radial-gradient(ellipse at center, #020407 0%, #000103 100%);
+      box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.95), inset 0 2px 20px rgba(0,0,0,1.0);
     }
     .scope-glass::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(rgba(18, 24, 38, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background: linear-gradient(rgba(8, 12, 20, 0) 50%, rgba(0, 0, 0, 0.45) 50%), linear-gradient(90deg, rgba(255, 255, 255, 0.01), rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.01));
       background-size: 100% 3px, 6px 100%;
       pointer-events: none;
       z-index: 10;
-      opacity: 0.65;
+      opacity: 0.55;
     }
 
     /* Laser Button Polish */
@@ -113,7 +148,7 @@
       left: -60%;
       width: 40%;
       height: 200%;
-      background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.12), transparent);
       transform: rotate(25deg);
       transition: all 0.5s ease;
     }
@@ -127,10 +162,10 @@
       width: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: #090c10;
+      background: #020305;
     }
     ::-webkit-scrollbar-thumb {
-      background: #242c3b;
+      background: #151b24;
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
@@ -139,21 +174,21 @@
 
     /* Step Sequencer Cells */
     .seq-step.active {
-      background: linear-gradient(180deg, #00f0ff 0%, #0099cc 100%);
-      color: #03080d;
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+      background: linear-gradient(180deg, var(--cyan-neon) 0%, rgba(0, 160, 200, 0.8) 100%);
+      color: #010306;
+      box-shadow: 0 0 14px var(--cyan-glow);
       font-weight: 800;
     }
     .seq-step.current {
-      border-color: #ff3366 !important;
-      box-shadow: 0 0 10px rgba(255, 51, 102, 0.7);
+      border-color: #ff2a55 !important;
+      box-shadow: 0 0 12px rgba(255, 42, 85, 0.85);
     }
   </style>
 </head>
 <body class="w-screen h-screen overflow-hidden flex flex-col bg-[#06080b] text-slate-100">
 
   <!-- 1. FULL-WIDTH TOP RACK DECK (Brushed Metal Header) -->
-  <header class="brushed-metal border-b border-[#1b222d] px-4 py-2 flex items-center justify-between gap-3 shrink-0 z-30 shadow-md">
+  <header class="brushed-metal border-b border-[#131822] px-4 py-2 flex items-center justify-between gap-3 shrink-0 z-30 shadow-2xl">
     
     <!-- Branding & Engine Specification -->
     <div class="flex items-center gap-3 shrink-0">
@@ -162,7 +197,7 @@
         <div class="hex-screw"></div>
       </div>
 
-      <button id="powerBtn" class="flex items-center gap-2 px-2.5 py-1.5 rounded bg-[#090c11] border border-[#263242] hover:border-cyan-400 transition-all cursor-pointer group" title="Master DSP Circuit Bypass">
+      <button id="powerBtn" class="flex items-center gap-2 px-2.5 py-1.5 rounded bg-[#040608] border border-[#1a222f] hover:border-cyan-400 transition-all cursor-pointer group" title="Master DSP Circuit Bypass">
         <div id="powerLed" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f0ff] transition-all"></div>
         <span class="text-[10px] font-bold tracking-widest font-mono text-cyan-400 group-hover:text-cyan-300">ONLINE</span>
       </button>
@@ -172,45 +207,45 @@
           <span class="font-['Chakra_Petch'] text-sm sm:text-base font-bold tracking-wider text-slate-100">
             TRANSIENT<span class="text-cyan-400 font-extrabold ml-1">ARCHITECT</span>
           </span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-300 font-mono border border-cyan-800/80">v4.0 PRO MAX</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/70 text-cyan-300 font-mono border border-cyan-800/60">v4.0 PRO MAX</span>
         </div>
-        <span class="text-[9px] font-mono text-slate-400 hidden lg:inline tracking-wider">MODULAR KINETIC SWITCH & IMPULSE SYNTHESIZER WORKSTATION</span>
+        <span class="text-[9px] font-mono text-slate-500 hidden lg:inline tracking-wider">OBSIDIAN STEALTH DSP SYNTHESIZER</span>
       </div>
     </div>
 
     <!-- Center Control Strip: Audition, Auto-Play, A/B Compare, Sequencer BPM -->
-    <div class="flex items-center gap-2 bg-[#080b0f] border border-[#1b2330] p-1 px-2 rounded-lg shadow-inner flex-wrap justify-center">
+    <div class="flex items-center gap-2 bg-[#030508] border border-[#131924] p-1 px-2 rounded-lg shadow-inner flex-wrap justify-center">
       
       <!-- Primary Audition Laser Button -->
       <button id="fireBtn" class="btn-laser flex items-center gap-1.5 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 active:scale-95 text-slate-950 font-bold px-3.5 py-1.5 rounded text-xs font-mono tracking-wider shadow-lg shadow-cyan-500/20 cursor-pointer">
         <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        <span>AUDITION <kbd class="text-[9px] bg-slate-950/40 px-1 rounded text-cyan-200 ml-0.5">[SPACE]</kbd></span>
+        <span>AUDITION <kbd class="text-[9px] bg-slate-950/50 px-1 rounded text-cyan-200 ml-0.5">[SPACE]</kbd></span>
       </button>
 
       <!-- Auto Audition Parameter Toggle -->
-      <button id="autoAuditionBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#10151e] border border-[#232d3d] hover:border-slate-500 text-[11px] font-mono text-slate-300 transition-all cursor-pointer" title="Auto-play sound when adjusting parameters">
-        <span id="autoAuditionLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors"></span>
-        <span>AUTO-PLAY: <span id="autoAuditionStatus" class="text-slate-400">OFF</span></span>
+      <button id="autoAuditionBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#080b10] border border-[#18202d] hover:border-slate-600 text-[11px] font-mono text-slate-300 transition-all cursor-pointer" title="Auto-play sound when adjusting parameters">
+        <span id="autoAuditionLed" class="w-2 h-2 rounded-full bg-slate-700 transition-colors"></span>
+        <span>AUTO-PLAY: <span id="autoAuditionStatus" class="text-slate-500">OFF</span></span>
       </button>
 
-      <div class="h-5 w-[1px] bg-slate-800 hidden sm:block"></div>
+      <div class="h-5 w-[1px] bg-slate-900 hidden sm:block"></div>
 
       <!-- A/B Comparison Matrix -->
-      <div class="flex items-center bg-[#0d121a] rounded border border-[#202937] p-0.5 text-[10px] font-mono">
+      <div class="flex items-center bg-[#070a0e] rounded border border-[#171e2a] p-0.5 text-[10px] font-mono">
         <button id="slotABtn" class="px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-700/60 cursor-pointer transition-all">A</button>
-        <button id="slotBBtn" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 cursor-pointer transition-all">B</button>
-        <button id="copyAtoBBtn" class="px-1.5 py-0.5 text-slate-500 hover:text-amber-400 cursor-pointer" title="Copy Current Profile to Alternate Slot">➔</button>
+        <button id="slotBBtn" class="px-2 py-0.5 rounded text-slate-500 hover:text-slate-200 cursor-pointer transition-all">B</button>
+        <button id="copyAtoBBtn" class="px-1.5 py-0.5 text-slate-600 hover:text-amber-400 cursor-pointer" title="Copy Current Profile to Alternate Slot">➔</button>
       </div>
 
-      <div class="h-5 w-[1px] bg-slate-800 hidden sm:block"></div>
+      <div class="h-5 w-[1px] bg-slate-900 hidden sm:block"></div>
 
       <!-- Metronome Cycle Loop Toggle & BPM -->
-      <button id="loopBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#10151e] border border-[#232d3d] hover:border-slate-500 text-[11px] font-mono text-slate-300 transition-all cursor-pointer">
-        <span id="loopLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors"></span>
-        <span>LOOP: <span id="loopStatus" class="text-slate-400">OFF</span></span>
+      <button id="loopBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#080b10] border border-[#18202d] hover:border-slate-600 text-[11px] font-mono text-slate-300 transition-all cursor-pointer">
+        <span id="loopLed" class="w-2 h-2 rounded-full bg-slate-700 transition-colors"></span>
+        <span>LOOP: <span id="loopStatus" class="text-slate-500">OFF</span></span>
       </button>
 
-      <select id="bpmSelect" class="bg-[#121720] border border-[#242e3f] text-slate-300 text-[11px] font-mono rounded px-1.5 py-1 outline-none cursor-pointer">
+      <select id="bpmSelect" class="bg-[#090d13] border border-[#1b2330] text-slate-300 text-[11px] font-mono rounded px-1.5 py-1 outline-none cursor-pointer">
         <option value="90">90 BPM</option>
         <option value="120" selected>120 BPM</option>
         <option value="140">140 BPM</option>
@@ -218,33 +253,44 @@
       </select>
     </div>
 
-    <!-- Right Master Console (Stereo Dual Peak LED Ladders & Batch Exporter) -->
+    <!-- Right Master Console (Theme Selector & Stereo Dual Peak LED Ladders) -->
     <div class="flex items-center gap-3 shrink-0">
       
+      <!-- Dark Theme Profile Switcher -->
+      <div class="hidden xl:flex items-center gap-1 bg-[#040609] border border-[#151c27] px-2 py-1 rounded-md text-[10px] font-mono">
+        <span class="text-slate-500">THEME:</span>
+        <select id="themeSelector" class="bg-transparent text-cyan-300 font-bold outline-none cursor-pointer">
+          <option value="obsidian" class="bg-[#080b10] text-cyan-300">OBSIDIAN OLED</option>
+          <option value="carbon" class="bg-[#080b10] text-sky-400">CARBON STEALTH</option>
+          <option value="amber" class="bg-[#080b10] text-amber-400">CYBER AMBER</option>
+          <option value="emerald" class="bg-[#080b10] text-emerald-400">MIDNIGHT EMERALD</option>
+        </select>
+      </div>
+
       <!-- Dual Peak Bar Meter -->
-      <div class="flex flex-col gap-1 bg-[#090c10] border border-[#1b2330] p-1.5 px-2.5 rounded-md min-w-[145px]">
+      <div class="flex flex-col gap-1 bg-[#040608] border border-[#131924] p-1.5 px-2.5 rounded-md min-w-[145px]">
         <div class="flex justify-between items-center text-[9px] font-mono">
-          <span class="text-slate-400 font-semibold tracking-tighter">PEAK L/R</span>
+          <span class="text-slate-500 font-semibold tracking-tighter">PEAK L/R</span>
           <span id="meterDbVal" class="text-cyan-400 font-bold">-INF dB</span>
         </div>
-        <div class="flex gap-[1.5px] h-2 bg-[#090b0e] p-[1px] rounded overflow-hidden" id="ledLadder">
+        <div class="flex gap-[1.5px] h-2 bg-[#020305] p-[1px] rounded overflow-hidden" id="ledLadder">
           <!-- 16 Dynamic LED Segments -->
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="0"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="1"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="2"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="3"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="4"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="5"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="6"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="7"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="8"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="9"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="10"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="11"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="12"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="13"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="14"></div>
-          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="15"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="0"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="1"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="2"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="3"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="4"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="5"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="6"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="7"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="8"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="9"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="10"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="11"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="12"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="13"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="14"></div>
+          <div class="flex-1 bg-[#0e131b] rounded-[1px] transition-colors" data-idx="15"></div>
         </div>
       </div>
 
@@ -255,7 +301,7 @@
           <span class="hidden sm:inline">EXPORT</span> WAV
         </button>
 
-        <button id="batchExportBtn" class="px-2.5 py-1.5 rounded bg-[#131923] hover:bg-[#1c2433] border border-[#273549] text-amber-300 font-mono text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors" title="Generate 4 Velocity-Varied Sample Round-Robins">
+        <button id="batchExportBtn" class="px-2.5 py-1.5 rounded bg-[#090d14] hover:bg-[#111722] border border-[#1b2533] text-amber-300 font-mono text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors" title="Generate 4 Velocity-Varied Sample Round-Robins">
           <span>PACK (x4)</span>
         </button>
       </div>
@@ -268,21 +314,21 @@
   </header>
 
   <!-- 2. SUB-BAR: PRESET MANAGER & WORKSPACE VIEW MODE TABS -->
-  <div class="bg-[#0a0d12] px-4 py-1.5 border-b border-[#1b2331] flex items-center justify-between gap-3 text-xs overflow-x-auto shrink-0 z-20">
+  <div class="bg-[#040608] px-4 py-1.5 border-b border-[#121721] flex items-center justify-between gap-3 text-xs overflow-x-auto shrink-0 z-20">
     
     <!-- View Switcher Tabs -->
-    <div class="flex items-center gap-1.5 bg-[#0e131b] p-0.5 rounded-lg border border-[#1f2838]">
-      <button id="viewTabScope" class="view-tab active px-3 py-1 rounded text-[11px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer flex items-center gap-1.5">
+    <div class="flex items-center gap-1.5 bg-[#070a0e] p-0.5 rounded-lg border border-[#141a24]">
+      <button id="viewTabScope" class="view-tab active px-3 py-1 rounded text-[11px] font-mono font-bold bg-cyan-950/70 text-cyan-300 border border-cyan-700/50 transition-all cursor-pointer flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>KINETIC SCOPE & FFT</span>
       </button>
       
-      <button id="viewTabSeq" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
+      <button id="viewTabSeq" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-500 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         <span>16-STEP GROOVE RACK</span>
       </button>
 
-      <button id="viewTabArena" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
+      <button id="viewTabArena" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-500 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>
         <span>SWITCHBOARD ARENA</span>
       </button>
@@ -290,7 +336,7 @@
 
     <!-- Quick Preset Bank Pills -->
     <div class="flex items-center gap-2 overflow-x-auto py-0.5">
-      <span class="font-mono text-[10px] text-slate-500 uppercase tracking-wider font-semibold shrink-0">BANKS:</span>
+      <span class="font-mono text-[10px] text-slate-600 uppercase tracking-wider font-semibold shrink-0">BANKS:</span>
       <div class="flex items-center gap-1" id="presetPillsContainer">
         <!-- Injected via JavaScript -->
       </div>
@@ -298,18 +344,18 @@
 
     <!-- Randomize / Mutate & Reset Buttons -->
     <div class="flex items-center gap-1.5 shrink-0">
-      <button id="randomizeBtn" class="px-2 py-1 rounded bg-[#141b26] hover:bg-[#1d2737] border border-[#273448] text-amber-300 font-mono text-[10px] flex items-center gap-1 cursor-pointer transition-colors" title="Mutate Kinetic DSP Parameters">
+      <button id="randomizeBtn" class="px-2 py-1 rounded bg-[#090d14] hover:bg-[#121926] border border-[#1b2535] text-amber-300 font-mono text-[10px] flex items-center gap-1 cursor-pointer transition-colors" title="Mutate Kinetic DSP Parameters">
         <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
         MUTATE
       </button>
-      <button id="resetDefaultsBtn" class="px-2 py-1 rounded bg-[#141b26] hover:bg-[#1d2737] border border-[#273448] text-slate-400 font-mono text-[10px] cursor-pointer transition-colors">
+      <button id="resetDefaultsBtn" class="px-2 py-1 rounded bg-[#090d14] hover:bg-[#121926] border border-[#1b2535] text-slate-500 hover:text-slate-300 font-mono text-[10px] cursor-pointer transition-colors">
         RESET
       </button>
     </div>
   </div>
 
   <!-- 3. CENTRAL COMMAND VIEWPORT (Dynamically Fills Screen Height) -->
-  <div class="flex-1 relative w-full overflow-hidden flex flex-col bg-[#05070a]">
+  <div class="flex-1 relative w-full overflow-hidden flex flex-col bg-[#010204]">
     
     <!-- VIEW A: INTERACTIVE CRT DUAL-BEAM OSCILLOSCOPE & FFT ANALYZER -->
     <div id="viewScopeContainer" class="relative w-full h-full scope-glass cursor-crosshair overflow-hidden group">
@@ -317,11 +363,11 @@
       
       <!-- Top Left HUD Badges -->
       <div class="absolute top-3 left-4 z-20 pointer-events-none flex items-center gap-3">
-        <div class="flex items-center gap-2 bg-[#080d14]/85 backdrop-blur-sm border border-cyan-800/80 px-2.5 py-1 rounded font-mono text-[10px] text-cyan-300 shadow">
+        <div class="flex items-center gap-2 bg-[#020407]/90 backdrop-blur-md border border-cyan-900/60 px-2.5 py-1 rounded font-mono text-[10px] text-cyan-300 shadow-xl">
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
           <span>CH1: KINETIC ENVELOPE SPLINE</span>
         </div>
-        <div class="flex items-center gap-2 bg-[#080d14]/85 backdrop-blur-sm border border-amber-800/60 px-2.5 py-1 rounded font-mono text-[10px] text-amber-300 shadow hidden sm:flex">
+        <div class="flex items-center gap-2 bg-[#020407]/90 backdrop-blur-md border border-amber-900/50 px-2.5 py-1 rounded font-mono text-[10px] text-amber-300 shadow-xl hidden sm:flex">
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
           <span>CH2: REAL-TIME FFT SPECTRUM</span>
         </div>
@@ -329,11 +375,11 @@
 
       <!-- Top Right Instruction & Zoom Window -->
       <div class="absolute top-3 right-4 z-20 flex items-center gap-2">
-        <div class="bg-black/60 backdrop-blur-sm border border-slate-800/80 px-2.5 py-1 rounded font-mono text-[10px] text-slate-400 hidden md:block">
+        <div class="bg-black/80 backdrop-blur-md border border-slate-900 px-2.5 py-1 rounded font-mono text-[10px] text-slate-500 hidden md:block">
           DRAG <span class="text-amber-400 font-bold">P1–P4 HANDLES</span> DIRECTLY ON WAVE
         </div>
 
-        <select id="timeScaleSelect" class="bg-[#0b1017] border border-[#212b3a] text-cyan-300 text-[10px] font-mono rounded px-2 py-1 outline-none cursor-pointer">
+        <select id="timeScaleSelect" class="bg-[#05080c] border border-[#161f2c] text-cyan-300 text-[10px] font-mono rounded px-2 py-1 outline-none cursor-pointer">
           <option value="100">SCALE: 100ms</option>
           <option value="160" selected>SCALE: 160ms</option>
           <option value="250">SCALE: 250ms</option>
@@ -341,28 +387,28 @@
       </div>
 
       <!-- Live Floating Coordinate Tooltip -->
-      <div id="nodeTooltip" class="absolute z-30 pointer-events-none hidden bg-[#0c121b] border border-cyan-400/80 text-cyan-200 text-[10px] font-mono px-2 py-1 rounded shadow-2xl transform -translate-x-1/2 -translate-y-9 backdrop-blur-md">
+      <div id="nodeTooltip" class="absolute z-30 pointer-events-none hidden bg-[#05080e] border border-cyan-400/80 text-cyan-200 text-[10px] font-mono px-2 py-1 rounded shadow-2xl transform -translate-x-1/2 -translate-y-9 backdrop-blur-md">
         P1: ATTACK
       </div>
 
       <!-- Bottom Calibration Footer HUD -->
-      <div class="absolute bottom-2 left-4 z-20 pointer-events-none font-mono text-[9px] text-slate-500">
+      <div class="absolute bottom-2 left-4 z-20 pointer-events-none font-mono text-[9px] text-slate-600">
         Fs: 44.1 kHz • 32-Bit Float DSP Precision • 128-pt High-Pass Sallen-Key
       </div>
     </div>
 
     <!-- VIEW B: 16-STEP GROOVE RACK (Hidden by default) -->
-    <div id="viewSeqContainer" class="hidden w-full h-full p-6 flex flex-col justify-center items-center bg-[#070a0f] relative">
-      <div class="w-full max-w-4xl bg-[#0d121a] border border-[#202b3c] rounded-xl p-5 shadow-2xl flex flex-col gap-4">
+    <div id="viewSeqContainer" class="hidden w-full h-full p-6 flex flex-col justify-center items-center bg-[#010204] relative">
+      <div class="w-full max-w-4xl bg-[#06080d] border border-[#151c27] rounded-xl p-5 shadow-2xl flex flex-col gap-4">
         
-        <div class="flex items-center justify-between border-b border-[#1c2636] pb-3">
+        <div class="flex items-center justify-between border-b border-[#121721] pb-3">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
             <h3 class="font-['Chakra_Petch'] text-sm font-bold tracking-wider text-slate-200">16-STEP MECHANICAL RHYTHM GENERATOR</h3>
           </div>
           <div class="flex items-center gap-3 text-xs font-mono">
-            <button id="seqClearBtn" class="px-2 py-1 rounded bg-[#161d28] hover:bg-[#1e2736] border border-[#263447] text-slate-300">CLEAR ALL</button>
-            <button id="seqRandomBtn" class="px-2 py-1 rounded bg-[#161d28] hover:bg-[#1e2736] border border-[#263447] text-amber-300">RANDOMIZE GROOVE</button>
+            <button id="seqClearBtn" class="px-2 py-1 rounded bg-[#090d14] hover:bg-[#111722] border border-[#1b2533] text-slate-400">CLEAR ALL</button>
+            <button id="seqRandomBtn" class="px-2 py-1 rounded bg-[#090d14] hover:bg-[#111722] border border-[#1b2533] text-amber-300">RANDOMIZE GROOVE</button>
           </div>
         </div>
 
@@ -371,7 +417,7 @@
           <!-- Populated by JS -->
         </div>
 
-        <div class="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-400">
+        <div class="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-500">
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="checkbox" id="seqHumanizeToggle" checked class="accent-cyan-400">
@@ -384,48 +430,48 @@
     </div>
 
     <!-- VIEW C: MECHANICAL SWITCHBOARD TEST ARENA (Hidden by default) -->
-    <div id="viewArenaContainer" class="hidden w-full h-full p-6 flex flex-col items-center justify-center bg-[#07090e] relative">
-      <div class="w-full max-w-4xl bg-[#0c1017] border border-[#1e2838] rounded-xl p-6 shadow-2xl flex flex-col items-center gap-6">
+    <div id="viewArenaContainer" class="hidden w-full h-full p-6 flex flex-col items-center justify-center bg-[#010204] relative">
+      <div class="w-full max-w-4xl bg-[#06080d] border border-[#141b25] rounded-xl p-6 shadow-2xl flex flex-col items-center gap-6">
         
         <div class="text-center">
           <h3 class="font-['Chakra_Petch'] text-base font-bold tracking-wider text-slate-100 mb-1">INTERACTIVE SWITCHBOARD TESTBED</h3>
-          <p class="text-xs font-mono text-slate-400">PRESS PHYSICAL KEYS ON YOUR KEYBOARD OR TAP THE SWITCHES BELOW</p>
+          <p class="text-xs font-mono text-slate-500">PRESS PHYSICAL KEYS ON YOUR KEYBOARD OR TAP THE SWITCHES BELOW</p>
         </div>
 
         <!-- Physical Keycap Simulation Row -->
         <div class="flex items-center gap-3 flex-wrap justify-center" id="switchRow">
-          <div data-profile="blue" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-cyan-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+          <div data-profile="blue" class="switch-cap group w-20 h-24 bg-[#090d14] hover:bg-[#101622] active:translate-y-1.5 border-2 border-[#1c2636] active:border-cyan-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-xl transition-all">
             <span class="text-[10px] font-mono text-cyan-400 font-bold">CLICKY</span>
-            <div class="w-7 h-7 rounded-sm bg-blue-600/60 border border-blue-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">Q</div>
-            <span class="text-[9px] font-mono text-slate-400">BLUE STRIKE</span>
+            <div class="w-7 h-7 rounded-sm bg-blue-900/60 border border-blue-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">Q</div>
+            <span class="text-[9px] font-mono text-slate-500">BLUE STRIKE</span>
           </div>
 
-          <div data-profile="brown" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-amber-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+          <div data-profile="brown" class="switch-cap group w-20 h-24 bg-[#090d14] hover:bg-[#101622] active:translate-y-1.5 border-2 border-[#1c2636] active:border-amber-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-xl transition-all">
             <span class="text-[10px] font-mono text-amber-400 font-bold">TACTILE</span>
-            <div class="w-7 h-7 rounded-sm bg-amber-700/60 border border-amber-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">W</div>
-            <span class="text-[9px] font-mono text-slate-400">BROWN BUMP</span>
+            <div class="w-7 h-7 rounded-sm bg-amber-900/60 border border-amber-600 flex items-center justify-center text-xs font-bold text-white shadow-inner">W</div>
+            <span class="text-[9px] font-mono text-slate-500">BROWN BUMP</span>
           </div>
 
-          <div data-profile="red" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-rose-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+          <div data-profile="red" class="switch-cap group w-20 h-24 bg-[#090d14] hover:bg-[#101622] active:translate-y-1.5 border-2 border-[#1c2636] active:border-rose-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-xl transition-all">
             <span class="text-[10px] font-mono text-rose-400 font-bold">LINEAR</span>
-            <div class="w-7 h-7 rounded-sm bg-rose-700/60 border border-rose-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">E</div>
-            <span class="text-[9px] font-mono text-slate-400">RED THUD</span>
+            <div class="w-7 h-7 rounded-sm bg-rose-900/60 border border-rose-600 flex items-center justify-center text-xs font-bold text-white shadow-inner">E</div>
+            <span class="text-[9px] font-mono text-slate-500">RED THUD</span>
           </div>
 
-          <div data-profile="mouse" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-emerald-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+          <div data-profile="mouse" class="switch-cap group w-20 h-24 bg-[#090d14] hover:bg-[#101622] active:translate-y-1.5 border-2 border-[#1c2636] active:border-emerald-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-xl transition-all">
             <span class="text-[10px] font-mono text-emerald-400 font-bold">MICRO</span>
-            <div class="w-7 h-7 rounded-sm bg-emerald-600/60 border border-emerald-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">R</div>
-            <span class="text-[9px] font-mono text-slate-400">OPTICAL MOUSE</span>
+            <div class="w-7 h-7 rounded-sm bg-emerald-900/60 border border-emerald-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">R</div>
+            <span class="text-[9px] font-mono text-slate-500">OPTICAL MOUSE</span>
           </div>
 
-          <div data-profile="relay" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-purple-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+          <div data-profile="relay" class="switch-cap group w-20 h-24 bg-[#090d14] hover:bg-[#101622] active:translate-y-1.5 border-2 border-[#1c2636] active:border-purple-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-xl transition-all">
             <span class="text-[10px] font-mono text-purple-400 font-bold">HEAVY</span>
-            <div class="w-7 h-7 rounded-sm bg-purple-600/60 border border-purple-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">SPACE</div>
-            <span class="text-[9px] font-mono text-slate-400">RELAY POP</span>
+            <div class="w-7 h-7 rounded-sm bg-purple-900/60 border border-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">SPACE</div>
+            <span class="text-[9px] font-mono text-slate-500">RELAY POP</span>
           </div>
         </div>
 
-        <div class="w-full p-3 bg-[#080b0f] rounded-lg border border-[#1b2330] flex items-center justify-between text-xs font-mono text-slate-400">
+        <div class="w-full p-3 bg-[#030508] rounded-lg border border-[#131923] flex items-center justify-between text-xs font-mono text-slate-500">
           <span>RAPID FIRE CPS COUNTER: <strong id="cpsVal" class="text-cyan-400">0.0 CPS</strong></span>
           <span>TOTAL TRANSIENT BURSTS: <strong id="strikeCountVal" class="text-amber-400">0</strong></span>
         </div>
@@ -435,14 +481,14 @@
   </div>
 
   <!-- 4. MASTER 4-COLUMN HARDWARE CONTROL DECK -->
-  <div class="p-3 bg-[#090c10] border-t border-[#1b2330] shrink-0 z-20">
+  <div class="p-3 bg-[#030406] border-t border-[#121620] shrink-0 z-20">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-7xl mx-auto">
       
       <!-- MODULE 01: STRIKE EXCITATION & PITCH CHIRP -->
-      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <section class="bg-[#07090e] rounded-lg border border-[#141b26] p-3 flex flex-col justify-between shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-[2px] bg-cyan-400"></div>
         <div>
-          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#10151f]">
             <div class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-sm bg-cyan-400"></span>
               <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">01 / Strike Excitation</h4>
@@ -451,11 +497,11 @@
           </div>
 
           <!-- Waveform selector pills -->
-          <div class="grid grid-cols-4 gap-1 p-0.5 bg-[#080b0f] rounded border border-[#1c2330] mb-2.5" id="waveSelector">
-            <button data-wave="triangle" class="wave-btn active py-0.5 text-[9px] font-mono font-bold rounded bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer">TRI</button>
-            <button data-wave="sine" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SINE</button>
-            <button data-wave="square" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SQR</button>
-            <button data-wave="sawtooth" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SAW</button>
+          <div class="grid grid-cols-4 gap-1 p-0.5 bg-[#030508] rounded border border-[#131923] mb-2.5" id="waveSelector">
+            <button data-wave="triangle" class="wave-btn active py-0.5 text-[9px] font-mono font-bold rounded bg-cyan-950/70 text-cyan-300 border border-cyan-700/50 transition-all cursor-pointer">TRI</button>
+            <button data-wave="sine" class="wave-btn py-0.5 text-[9px] font-mono text-slate-500 hover:text-slate-200 transition-all cursor-pointer">SINE</button>
+            <button data-wave="square" class="wave-btn py-0.5 text-[9px] font-mono text-slate-500 hover:text-slate-200 transition-all cursor-pointer">SQR</button>
+            <button data-wave="sawtooth" class="wave-btn py-0.5 text-[9px] font-mono text-slate-500 hover:text-slate-200 transition-all cursor-pointer">SAW</button>
           </div>
 
           <!-- Dual Rotary Knobs -->
@@ -463,47 +509,47 @@
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="pitch" data-min="400" data-max="4500" data-step="10" data-unit="Hz">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--cyan-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Pitch</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Pitch</span>
               <span class="text-[10px] font-mono text-cyan-300 font-bold" id="lbl-pitch">1800 Hz</span>
             </div>
 
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="strikeVol" data-min="0.05" data-max="1.0" data-step="0.01" data-unit="dB">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--cyan-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Strike (P1)</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Strike (P1)</span>
               <span class="text-[10px] font-mono text-cyan-300 font-bold" id="lbl-strikeVol">-1.9 dB</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
-          <span class="text-slate-400">NOISE CHURN</span>
+        <div class="mt-2 pt-2 border-t border-[#0e131d] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-500">NOISE CHURN</span>
           <div class="flex items-center gap-1.5">
-            <input type="range" id="noiseMixSlider" min="0" max="1" step="0.05" value="0.45" class="w-16 accent-cyan-400 h-1 bg-slate-800 rounded">
+            <input type="range" id="noiseMixSlider" min="0" max="1" step="0.05" value="0.45" class="w-16 accent-cyan-400 h-1 bg-slate-900 rounded">
             <span id="noiseMixVal" class="text-cyan-300 w-6 text-right">45%</span>
           </div>
         </div>
       </section>
 
       <!-- MODULE 02: DYNAMICS, BODY & CAVITY RESONANCE -->
-      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <section class="bg-[#07090e] rounded-lg border border-[#141b26] p-3 flex flex-col justify-between shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-[2px] bg-amber-400"></div>
         <div>
-          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#10151f]">
             <div class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-sm bg-amber-400"></span>
               <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">02 / Body & Timbre</h4>
@@ -515,47 +561,47 @@
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="decayMs" data-min="4" data-max="45" data-step="1" data-unit="ms">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--amber-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Decay (P2)</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Decay (P2)</span>
               <span class="text-[10px] font-mono text-amber-300 font-bold" id="lbl-decayMs">16 ms</span>
             </div>
 
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="hpf" data-min="80" data-max="2400" data-step="20" data-unit="Hz">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--amber-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">HP Filter</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">HP Filter</span>
               <span class="text-[10px] font-mono text-amber-300 font-bold" id="lbl-hpf">600 Hz</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
-          <span class="text-slate-400">CHASSIS Q</span>
+        <div class="mt-2 pt-2 border-t border-[#0e131d] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-500">CHASSIS Q</span>
           <div class="flex items-center gap-1.5">
-            <input type="range" id="qSlider" min="0.5" max="8.0" step="0.1" value="2.4" class="w-16 accent-amber-400 h-1 bg-slate-800 rounded">
+            <input type="range" id="qSlider" min="0.5" max="8.0" step="0.1" value="2.4" class="w-16 accent-amber-400 h-1 bg-slate-900 rounded">
             <span id="qVal" class="text-amber-300 w-6 text-right">2.4</span>
           </div>
         </div>
       </section>
 
       <!-- MODULE 03: UP-RELEASE & MECHANICAL SPRING -->
-      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <section class="bg-[#07090e] rounded-lg border border-[#141b26] p-3 flex flex-col justify-between shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-[2px] bg-emerald-400"></div>
         <div>
-          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#10151f]">
             <div class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-sm bg-emerald-400"></span>
               <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">03 / Up-Release Snap</h4>
@@ -567,44 +613,44 @@
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="releaseTimeMs" data-min="25" data-max="135" data-step="1" data-unit="ms">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--emerald-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Rel Time (P3)</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Rel Time (P3)</span>
               <span class="text-[10px] font-mono text-emerald-300 font-bold" id="lbl-releaseTimeMs">68 ms</span>
             </div>
 
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="releaseVol" data-min="0.0" data-max="0.9" data-step="0.02" data-unit="dB">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="var(--emerald-neon)" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Rel Vol</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Rel Vol</span>
               <span class="text-[10px] font-mono text-emerald-300 font-bold" id="lbl-releaseVol">-7.0 dB</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
-          <span class="text-slate-400">SPRING PING</span>
+        <div class="mt-2 pt-2 border-t border-[#0e131d] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-500">SPRING PING</span>
           <input type="checkbox" id="springToggle" checked class="accent-emerald-400 cursor-pointer">
         </div>
       </section>
 
       <!-- MODULE 04: SATURATION DRIVE & STEREO SPATIAL WIDTH -->
-      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <section class="bg-[#07090e] rounded-lg border border-[#141b26] p-3 flex flex-col justify-between shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-[2px] bg-purple-400"></div>
         <div>
-          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#10151f]">
             <div class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-sm bg-purple-400"></span>
               <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">04 / Drive & Width</h4>
@@ -616,37 +662,37 @@
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="drive" data-min="1.0" data-max="4.0" data-step="0.1" data-unit="x">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Hard Drive</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Hard Drive</span>
               <span class="text-[10px] font-mono text-purple-300 font-bold" id="lbl-drive">1.3x</span>
             </div>
 
             <div class="flex flex-col items-center">
               <div class="rotary-knob" data-param="subThump" data-min="0.0" data-max="0.8" data-step="0.05" data-unit="dB">
                 <svg class="w-11 h-11" viewBox="0 0 60 60">
-                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
-                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
-                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="30" cy="30" r="24" fill="#0b0e14" stroke="#18202d" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#05070a" stroke="#10151f" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#182230" stroke-width="3" stroke-linecap="round"/>
                   <path class="knob-fill" d="" fill="none" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
                   <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 uppercase">Sub Thump</span>
+              <span class="text-[9px] font-mono text-slate-500 uppercase">Sub Thump</span>
               <span class="text-[10px] font-mono text-purple-300 font-bold" id="lbl-subThump">0.15</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
-          <span class="text-slate-400">TAIL BOUND</span>
+        <div class="mt-2 pt-2 border-t border-[#0e131d] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-500">TAIL BOUND</span>
           <div class="flex items-center gap-1.5">
-            <input type="range" id="tailSlider" min="80" max="155" step="1" value="110" class="w-16 accent-purple-400 h-1 bg-slate-800 rounded">
+            <input type="range" id="tailSlider" min="80" max="155" step="1" value="110" class="w-16 accent-purple-400 h-1 bg-slate-900 rounded">
             <span id="tailVal" class="text-purple-300 w-8 text-right">110ms</span>
           </div>
         </div>
@@ -656,32 +702,45 @@
   </div>
 
   <!-- 5. BOTTOM TELEMETRY BAR -->
-  <footer class="bg-[#07090d] border-t border-[#18202d] px-4 py-1.5 flex items-center justify-between text-[10px] font-mono text-slate-500 shrink-0 z-20">
+  <footer class="bg-[#020305] border-t border-[#10141d] px-4 py-1.5 flex items-center justify-between text-[10px] font-mono text-slate-600 shrink-0 z-20">
     <div class="flex items-center gap-4">
-      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>AUDIO: <span id="audioContextStatus" class="text-slate-200">STANDBY</span></span>
-      <span class="hidden sm:inline">|</span>
+      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>AUDIO: <span id="audioContextStatus" class="text-slate-300">STANDBY</span></span>
+      <span class="hidden sm:inline text-slate-800">|</span>
       <span class="hidden sm:inline">BUFFER: <span class="text-cyan-400">128 SAMPLES</span></span>
-      <span class="hidden sm:inline">|</span>
+      <span class="hidden sm:inline text-slate-800">|</span>
       <span class="hidden sm:inline">DSP ENGINE: <span class="text-amber-400">DUAL-LAYER TRANSIENT IMPULSE</span></span>
     </div>
 
     <div class="flex items-center gap-3">
-      <button id="copyDataUriBtn" class="hover:text-slate-200 flex items-center gap-1 cursor-pointer transition-colors">
+      <button id="copyDataUriBtn" class="hover:text-slate-300 flex items-center gap-1 cursor-pointer transition-colors">
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         <span>COPY DATA URI</span>
       </button>
-      <span class="text-slate-700">|</span>
+      <span class="text-slate-800">|</span>
       <span>PRESS [SPACE] OR CLICK AUDITION</span>
     </div>
   </footer>
 
   <!-- Floating Toast Notification System -->
-  <div id="toast" class="fixed bottom-10 right-6 z-50 bg-[#0f141d] border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg shadow-2xl font-mono text-xs flex items-center gap-2 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+  <div id="toast" class="fixed bottom-10 right-6 z-50 bg-[#06080d] border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg shadow-2xl font-mono text-xs flex items-center gap-2 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
     <span id="toastMsg">Telemetry Online</span>
   </div>
 
   <script>
+    // Dark Theme Management
+    const themeSelector = document.getElementById('themeSelector');
+    if (themeSelector) {
+      themeSelector.addEventListener('change', (e) => {
+        const theme = e.target.value;
+        document.body.classList.remove('theme-carbon', 'theme-amber', 'theme-emerald');
+        if (theme !== 'obsidian') {
+          document.body.classList.add(`theme-${theme}`);
+        }
+        showToast(`Dark Theme Activated: ${theme.toUpperCase()}`);
+      });
+    }
+
     let TOTAL_TIMEFRAME_MS = 160;
 
     // Master DSP State Object
@@ -1076,9 +1135,9 @@
       const midY = canvasHeight / 2;
       const graphH = (canvasHeight / 2) - PAD_BOTTOM;
 
-      // 1. Oscilloscope Graticule Grid
+      // 1. Oscilloscope Graticule Grid (Dark Stealth Line Colors)
       ctx.save();
-      ctx.strokeStyle = 'rgba(28, 40, 56, 0.65)';
+      ctx.strokeStyle = 'rgba(18, 26, 38, 0.75)';
       ctx.lineWidth = 1;
 
       // Horizontal dB Attenuation lines
@@ -1096,7 +1155,7 @@
         ctx.stroke();
 
         if (amp > 0) {
-          ctx.fillStyle = '#445163';
+          ctx.fillStyle = '#2f3d50';
           ctx.font = '500 8.5px "JetBrains Mono", monospace';
           const dbText = `${(20 * Math.log10(amp)).toFixed(0)}dB`;
           ctx.fillText(dbText, 8, yTop + 3);
@@ -1113,14 +1172,14 @@
         ctx.lineTo(x, canvasHeight - PAD_BOTTOM);
         ctx.stroke();
 
-        ctx.fillStyle = '#4e5b70';
+        ctx.fillStyle = '#334155';
         ctx.font = '500 8.5px "JetBrains Mono", monospace';
         ctx.fillText(`${ms}ms`, x - 10, canvasHeight - 12);
       }
 
       // Center zero-line
       ctx.setLineDash([]);
-      ctx.strokeStyle = '#222d3d';
+      ctx.strokeStyle = '#151d28';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(PAD_LEFT, midY);
@@ -1139,7 +1198,7 @@
           if (val > 0.02) {
             const bx = PAD_LEFT + b * barWidth;
             const bh = val * graphH * 0.85;
-            ctx.fillStyle = `rgba(255, 157, 0, ${val * 0.25})`;
+            ctx.fillStyle = `rgba(255, 157, 0, ${val * 0.22})`;
             ctx.fillRect(bx + 1, midY - bh, barWidth - 2, bh * 2);
           }
         }
