@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Mouse Click Synthesizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --panel-bg: #21262d;
+      --accent: #58a6ff;
+      --accent-active: #1f6feb;
+      --accent-green: #3fb950;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --border: #30363d;
+      --font-sans: "Google Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "Google Sans Code", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .hud-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--panel-bg);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .hud-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .hud-value {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .viz-panel {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: #090d13;
+      cursor: pointer;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .controls-grid {
+      padding: 1.5rem 1.75rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem 1.5rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .control-val {
+      font-family: var(--font-mono);
+      color: var(--text);
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      height: 38px;
+      border-radius: 10px;
+      outline: none;
+      font-family: var(--font-sans);
+    }
+
+    select {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0 0.85rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 5px;
+      background: var(--panel-bg);
+      border-radius: 999px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: -6.5px;
+      box-shadow: 0 0 0 2px var(--card-bg);
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]:active::-webkit-slider-thumb {
+      transform: scale(1.2);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 38px;
+      padding: 0 0.25rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text-muted);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    input:checked + .slider-toggle {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    input:checked + .slider-toggle:before {
+      transform: translateX(20px);
+      background-color: #000;
+    }
+
+    .button-group {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .button-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn {
+      height: 44px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #79b8ff;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: var(--accent-active);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1 class="header-title">Mouse Click Sound Lab</h1>
+      <div class="hud-pill">
+        <span class="hud-label">Clicks</span>
+        <span class="hud-value" id="hudCount">0</span>
+      </div>
+    </div>
+
+    <div class="viz-panel" id="vizContainer">
+      <canvas id="vizCanvas"></canvas>
+    </div>
+
+    <div class="controls-grid">
+      <!-- Preset Selection -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Preset Profile</span>
+        </div>
+        <select id="presetSelect">
+          <option value="Standard Optical">Standard Optical</option>
+          <option value="Crisp Mechanical">Crisp Mechanical</option>
+          <option value="Subtle UI Pop">Subtle UI Pop</option>
+          <option value="Deep Gaming Switch">Deep Gaming Switch</option>
+          <option value="Double Click">Double Click</option>
+        </select>
+      </div>
+
+      <!-- Oscillator Waveform Type -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Switch Tone Shape</span>
+        </div>
+        <select id="waveSelect">
+          <option value="triangle">Triangle (Hollow/Plastic)</option>
+          <option value="sine">Sine (Soft & Pure)</option>
+          <option value="square">Square (Hard/Sharp)</option>
+        </select>
+      </div>
+
+      <!-- Pitch Control -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Pitch Center</span>
+          <span class="control-val" id="pitchVal">1800 Hz</span>
+        </div>
+        <input type="range" id="pitchSlider" min="500" max="4000" step="25" value="1800">
+      </div>
+
+      <!-- Click Decay -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Click Decay</span>
+          <span class="control-val" id="decayVal">15 ms</span>
+        </div>
+        <input type="range" id="decaySlider" min="0.004" max="0.050" step="0.001" value="0.015">
+      </div>
+
+      <!-- Tone Layer Balance -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Transient Tone Vol</span>
+          <span class="control-val" id="toneVolVal">80%</span>
+        </div>
+        <input type="range" id="toneVolSlider" min="0" max="1" step="0.05" value="0.8">
+      </div>
+
+      <!-- Plastic Noise Snappiness -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>Friction Noise Vol</span>
+          <span class="control-val" id="noiseVolVal">40%</span>
+        </div>
+        <input type="range" id="noiseVolSlider" min="0" max="1" step="0.05" value="0.4">
+      </div>
+
+      <!-- High Pass Cutoff -->
+      <div class="control-row">
+        <div class="control-header">
+          <span>High-Pass Low Cut</span>
+          <span class="control-val" id="hpfVal">600 Hz</span>
+        </div>
+        <input type="range" id="hpfSlider" min="100" max="2500" step="50" value="600">
+      </div>
+
+      <!-- Release Click Toggle & Delay -->
+      <div class="control-row">
+        <div class="toggle-row">
+          <span style="font-size:0.825rem; font-weight:500; color:var(--text-muted)">Tactile Release Click</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="releaseToggle" checked>
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="control-header" style="margin-top: 4px;">
+          <span>Release Delay</span>
+          <span class="control-val" id="releaseVal">70 ms</span>
+        </div>
+        <input type="range" id="releaseSlider" min="30" max="180" step="5" value="70">
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" id="clickButton">Click to Audition</button>
+        <button class="btn btn-secondary" id="wavExportBtn">Download .WAV</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = {
+      "Standard Optical": { pitch: 1800, decay: 0.015, toneVol: 0.8, noiseVol: 0.4, hpf: 600, wave: "triangle", release: true, releaseDelay: 70, isDouble: false },
+      "Crisp Mechanical": { pitch: 2800, decay: 0.009, toneVol: 0.9, noiseVol: 0.6, hpf: 1100, wave: "triangle", release: true, releaseDelay: 55, isDouble: false },
+      "Subtle UI Pop": { pitch: 1100, decay: 0.025, toneVol: 0.6, noiseVol: 0.15, hpf: 300, wave: "sine", release: false, releaseDelay: 60, isDouble: false },
+      "Deep Gaming Switch": { pitch: 950, decay: 0.022, toneVol: 0.95, noiseVol: 0.3, hpf: 200, wave: "square", release: true, releaseDelay: 90, isDouble: false },
+      "Double Click": { pitch: 2200, decay: 0.012, toneVol: 0.85, noiseVol: 0.45, hpf: 800, wave: "triangle", release: false, releaseDelay: 60, isDouble: true }
+    };
+
+    const state = {
+      pitch: 1800,
+      decay: 0.015,
+      toneVol: 0.8,
+      noiseVol: 0.4,
+      hpf: 600,
+      wave: "triangle",
+      release: true,
+      releaseDelay: 70,
+      isDouble: false,
+      clickCount: 0
+    };
+
+    let audioCtx = null;
+    let wavePoints = [];
+    let waveIntensity = 0;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function renderClickNodes(ctx, destination, startTime, pitchMod = 1.0, volMod = 1.0) {
+      const pitch = state.pitch * pitchMod;
+      const decay = state.decay;
+      const toneVol = state.toneVol * volMod;
+      const noiseVol = state.noiseVol * volMod;
+
+      const hpFilter = ctx.createBiquadFilter();
+      hpFilter.type = "highpass";
+      hpFilter.frequency.setValueAtTime(state.hpf, startTime);
+      hpFilter.connect(destination);
+
+      if (toneVol > 0.01) {
+        const osc = ctx.createOscillator();
+        const toneGain = ctx.createGain();
+
+        osc.type = state.wave;
+        osc.frequency.setValueAtTime(pitch * 1.6, startTime);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(60, pitch * 0.25), startTime + decay);
+
+        toneGain.gain.setValueAtTime(toneVol, startTime);
+        toneGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decay);
+
+        osc.connect(toneGain);
+        toneGain.connect(hpFilter);
+
+        osc.start(startTime);
+        osc.stop(startTime + decay);
+      }
+
+      if (noiseVol > 0.01) {
+        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * decay));
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        }
+
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.setValueAtTime(pitch * 1.2, startTime);
+        noiseFilter.Q.setValueAtTime(2.5, startTime);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(noiseVol, startTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decay);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(hpFilter);
+
+        noise.start(startTime);
+        noise.stop(startTime + decay);
+      }
+    }
+
+    function triggerClickSound() {
+      state.clickCount++;
+      document.getElementById('hudCount').textContent = state.clickCount;
+
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      renderClickNodes(ctx, ctx.destination, now, 1.0, 1.0);
+
+      if (state.isDouble) {
+        renderClickNodes(ctx, ctx.destination, now + 0.08, 1.05, 0.9);
+      } else if (state.release) {
+        renderClickNodes(ctx, ctx.destination, now + (state.releaseDelay / 1000), 0.85, 0.5);
+      }
+
+      // Synthesize transient preview curve for the visualizer
+      wavePoints = [];
+      const samples = 140;
+      for (let i = 0; i < samples; i++) {
+        const t = i / samples;
+        let env = Math.exp(-t * 7);
+        let sample = Math.sin(t * Math.PI * 24 * (state.pitch / 1000)) * env * state.toneVol;
+        sample += (Math.random() * 2 - 1) * env * state.noiseVol * 0.4;
+
+        if (state.release && t > 0.45) {
+          const tRel = (t - 0.45) * 2;
+          const relEnv = Math.exp(-tRel * 8) * 0.45;
+          sample += Math.sin(tRel * Math.PI * 18 * (state.pitch / 1000)) * relEnv;
+        }
+        wavePoints.push(sample);
+      }
+      waveIntensity = 1.0;
+    }
+
+    // Audio Buffer Exporter to .WAV
+    async function exportToWav() {
+      const sampleRate = 44100;
+      const duration = state.isDouble ? 0.25 : (state.release ? (state.releaseDelay / 1000 + state.decay + 0.05) : state.decay + 0.05);
+      const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * duration), sampleRate);
+
+      renderClickNodes(offlineCtx, offlineCtx.destination, 0, 1.0, 1.0);
+      if (state.isDouble) {
+        renderClickNodes(offlineCtx, offlineCtx.destination, 0.08, 1.05, 0.9);
+      } else if (state.release) {
+        renderClickNodes(offlineCtx, offlineCtx.destination, state.releaseDelay / 1000, 0.85, 0.5);
+      }
+
+      const audioBuffer = await offlineCtx.startRendering();
+      const wavBlob = audioBufferToWavBlob(audioBuffer);
+      const url = URL.createObjectURL(wavBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `click_${state.pitch}Hz_${Math.round(state.decay * 1000)}ms.wav`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function audioBufferToWavBlob(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const length = buffer.length * numOfChan * 2 + 44;
+      const out = new DataView(new ArrayBuffer(length));
+      const channels = [];
+      let sample = 0;
+      let offset = 0;
+      let pos = 0;
+
+      function setUint16(data) { out.setUint16(pos, data, true); pos += 2; }
+      function setUint32(data) { out.setUint32(pos, data, true); pos += 4; }
+
+      // WAV Header
+      setUint32(0x46464952); // "RIFF"
+      setUint32(length - 8);
+      setUint32(0x45564157); // "WAVE"
+      setUint32(0x20746d66); // "fmt "
+      setUint32(16); // subchunk1size
+      setUint16(1);  // PCM
+      setUint16(numOfChan);
+      setUint32(buffer.sampleRate);
+      setUint32(buffer.sampleRate * 2 * numOfChan);
+      setUint16(numOfChan * 2);
+      setUint16(16); // 16-bit
+      setUint32(0x61746164); // "data"
+      setUint32(length - pos - 4);
+
+      for (let i = 0; i < buffer.numberOfChannels; i++) channels.push(buffer.getChannelData(i));
+
+      while (offset < buffer.length) {
+        for (let i = 0; i < numOfChan; i++) {
+          sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF) | 0;
+          out.setInt16(pos, sample, true);
+          pos += 2;
+        }
+        offset++;
+      }
+      return new Blob([out], { type: 'audio/wav' });
+    }
+
+    // Canvas visualizer
+    const canvas = document.getElementById('vizCanvas');
+    const container = document.getElementById('vizContainer');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    container.addEventListener('pointerdown', () => triggerClickSound());
+
+    let lastTime = performance.now();
+    function render(currentTime) {
+      const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
+      lastTime = currentTime;
+
+      const rect = container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2 - 25;
+      const maxRadius = Math.min(width, height) * 0.28;
+
+      if (waveIntensity > 0) {
+        waveIntensity = Math.max(0, waveIntensity - dt * 2.8);
+      }
+
+      // Dynamic Shockwave
+      if (waveIntensity > 0) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(88, 166, 255, ${waveIntensity * 0.6})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, maxRadius + (1 - waveIntensity) * 55, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Center Pad
+      ctx.save();
+      const padRadius = maxRadius * (1 - waveIntensity * 0.06);
+      ctx.fillStyle = '#161b22';
+      ctx.strokeStyle = '#58a6ff';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, padRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#f0f6fc';
+      ctx.font = '600 14px "Google Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("TAP OR CLICK TO FIRE SFX", cx, cy - 8);
+
+      ctx.font = '500 11px "Google Sans Code", monospace';
+      ctx.fillStyle = '#8b949e';
+      ctx.fillText(`${state.pitch}Hz | ${(state.decay*1000).toFixed(0)}ms | HPF:${state.hpf}Hz`, cx, cy + 14);
+      ctx.restore();
+
+      // Oscilloscope Container
+      const boxH = 68;
+      const boxY = height - boxH - 14;
+      const boxW = Math.min(width - 40, 560);
+      const boxX = (width - boxW) / 2;
+
+      ctx.save();
+      ctx.fillStyle = '#161b22';
+      ctx.strokeStyle = '#30363d';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      // Grid line
+      ctx.strokeStyle = '#21262d';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(boxX + 12, boxY + boxH / 2);
+      ctx.lineTo(boxX + boxW - 12, boxY + boxH / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Waveform trace
+      if (wavePoints.length > 0) {
+        ctx.strokeStyle = '#58a6ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const startX = boxX + 14;
+        const endX = boxX + boxW - 14;
+        const stepX = (endX - startX) / (wavePoints.length - 1);
+        const centerY = boxY + boxH / 2;
+        const amp = (boxH / 2 - 8);
+
+        for (let i = 0; i < wavePoints.length; i++) {
+          const x = startX + i * stepX;
+          const y = centerY - wavePoints[i] * amp * Math.max(0.2, waveIntensity);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#8b949e';
+      ctx.font = '500 10px "Google Sans Code", monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText("TRANSIENT IMPULSE", boxX + 12, boxY + 8);
+      ctx.restore();
+
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    // Bind controls to parameters
+    const presetSelect = document.getElementById('presetSelect');
+    const waveSelect = document.getElementById('waveSelect');
+    const pitchSlider = document.getElementById('pitchSlider');
+    const decaySlider = document.getElementById('decaySlider');
+    const toneVolSlider = document.getElementById('toneVolSlider');
+    const noiseVolSlider = document.getElementById('noiseVolSlider');
+    const hpfSlider = document.getElementById('hpfSlider');
+    const releaseToggle = document.getElementById('releaseToggle');
+    const releaseSlider = document.getElementById('releaseSlider');
+
+    const pitchVal = document.getElementById('pitchVal');
+    const decayVal = document.getElementById('decayVal');
+    const toneVolVal = document.getElementById('toneVolVal');
+    const noiseVolVal = document.getElementById('noiseVolVal');
+    const hpfVal = document.getElementById('hpfVal');
+    const releaseVal = document.getElementById('releaseVal');
+
+    function syncUI() {
+      pitchVal.textContent = `${state.pitch} Hz`;
+      decayVal.textContent = `${Math.round(state.decay * 1000)} ms`;
+      toneVolVal.textContent = `${Math.round(state.toneVol * 100)}%`;
+      noiseVolVal.textContent = `${Math.round(state.noiseVol * 100)}%`;
+      hpfVal.textContent = `${state.hpf} Hz`;
+      releaseVal.textContent = `${state.releaseDelay} ms`;
+
+      pitchSlider.value = state.pitch;
+      decaySlider.value = state.decay;
+      toneVolSlider.value = state.toneVol;
+      noiseVolSlider.value = state.noiseVol;
+      hpfSlider.value = state.hpf;
+      releaseSlider.value = state.releaseDelay;
+      releaseToggle.checked = state.release;
+      waveSelect.value = state.wave;
+    }
+
+    presetSelect.addEventListener('change', (e) => {
+      const p = PRESETS[e.target.value];
+      if (p) {
+        Object.assign(state, p);
+        syncUI();
+        triggerClickSound();
+      }
+    });
+
+    waveSelect.addEventListener('change', (e) => { state.wave = e.target.value; triggerClickSound(); });
+    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); syncUI(); });
+    decaySlider.addEventListener('input', (e) => { state.decay = Number(e.target.value); syncUI(); });
+    toneVolSlider.addEventListener('input', (e) => { state.toneVol = Number(e.target.value); syncUI(); });
+    noiseVolSlider.addEventListener('input', (e) => { state.noiseVol = Number(e.target.value); syncUI(); });
+    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); syncUI(); });
+    releaseToggle.addEventListener('change', (e) => { state.release = e.target.checked; triggerClickSound(); });
+    releaseSlider.addEventListener('input', (e) => { state.releaseDelay = Number(e.target.value); syncUI(); });
+
+    document.getElementById('clickButton').addEventListener('click', triggerClickSound);
+    document.getElementById('wavExportBtn').addEventListener('click', exportToWav);
+  </script>
+</body>
+</html>
