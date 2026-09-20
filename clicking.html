@@ -1,465 +1,770 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Transient Shaper // M-Click</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>TRANSIENT ARCHITECT // M-CLICK DSP 4.0 PRO WORKSTATION</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --bg-rack: #101216;
-      --panel-main: #16191f;
-      --panel-well: #0c0e11;
-      --panel-surface: #20242c;
-      --border-outer: #2b313a;
-      --border-subtle: #1c2026;
-      --accent-cyan: #00d2ff;
-      --accent-orange: #ff9f43;
-      --meter-green: #2fe075;
-      --meter-yellow: #f5b041;
-      --meter-red: #ff4757;
-      --text-main: #e6edf3;
-      --text-muted: #7d8590;
-      --font-ui: "Inter", -apple-system, sans-serif;
-      --font-dsp: "JetBrains Mono", monospace;
+      --rack-bg: #06080b;
+      --panel-dark: #0c0f14;
+      --panel-card: #11151c;
+      --panel-elevated: #171c26;
+      --panel-border: #1f2735;
+      --panel-border-bright: #2f3b4f;
+      --cyan-neon: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.35);
+      --amber-neon: #ff9d00;
+      --amber-glow: rgba(255, 157, 0, 0.35);
+      --crimson-neon: #ff3366;
+      --emerald-neon: #00e676;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Space Grotesk', sans-serif;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background: #08090b;
-      color: var(--text-main);
-      font-family: var(--font-ui);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .rack-chassis {
-      width: 100%;
-      max-width: 860px;
-      background: var(--panel-main);
-      border: 1px solid var(--border-outer);
-      border-radius: 8px;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(255, 255, 255, 0.05) inset;
+      background: #06080b;
+      color: #e2e8f0;
+      font-family: var(--font-sans);
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top Strip */
-    .top-bar {
-      background: linear-gradient(180deg, #1f232a 0%, #15181e 100%);
-      padding: 0.85rem 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-outer);
+    /* Brushed Metal Header and Striping */
+    .brushed-metal {
+      background-color: #0e1218;
+      background-image: 
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px),
+        linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(0,0,0,0.45) 100%);
     }
 
-    .device-branding {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .led-status {
-      width: 8px;
-      height: 8px;
+    /* Hex Fastener Screws */
+    .hex-screw {
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: var(--accent-cyan);
-      box-shadow: 0 0 10px var(--accent-cyan);
-    }
-
-    .device-name {
-      font-family: var(--font-dsp);
-      font-size: 0.825rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: #fff;
-    }
-
-    .device-version {
-      font-family: var(--font-dsp);
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      border: 1px solid var(--border-outer);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    .meter-cluster {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--panel-well);
-      padding: 5px 12px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .meter-label {
-      font-family: var(--font-dsp);
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .meter-bar-track {
-      width: 90px;
-      height: 8px;
-      background: #14171d;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .meter-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, var(--meter-green) 0%, var(--meter-yellow) 75%, var(--meter-red) 95%);
-      transition: width 0.04s ease-out;
-    }
-
-    .meter-db {
-      font-family: var(--font-dsp);
-      font-size: 0.7rem;
-      width: 52px;
-      text-align: right;
-      color: var(--accent-cyan);
-    }
-
-    /* Screen with Drag-and-Drop Nodes */
-    .scope-viewport {
+      background: radial-gradient(circle at 35% 35%, #475569 0%, #1e293b 70%, #0f172a 100%);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.8);
       position: relative;
-      width: 100%;
-      height: 280px;
-      background: radial-gradient(circle at 50% 50%, #0d121a 0%, #06080b 100%);
-      border-bottom: 1px solid var(--border-outer);
-      cursor: default;
+    }
+    .hex-screw::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 1.8px;
+      background: #090d13;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.15);
     }
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
+    /* Rotary Knobs */
+    .rotary-knob {
+      touch-action: none;
+      cursor: ns-resize;
+      transition: transform 0.05s ease;
+    }
+    .rotary-knob:active {
+      cursor: grabbing;
     }
 
-    /* Control Deck */
-    .control-deck {
-      padding: 1.25rem 1.5rem;
-      background: var(--bg-rack);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    /* CRT Phosphor Screen Styling */
+    .scope-glass {
+      position: relative;
+      background: radial-gradient(ellipse at center, #070f1a 0%, #020508 100%);
+      box-shadow: inset 0 0 55px rgba(0, 240, 255, 0.05), inset 0 2px 14px rgba(0,0,0,0.95);
     }
-
-    .deck-section {
-      background: var(--panel-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 0.9rem 1.15rem;
-    }
-
-    .section-title {
-      font-family: var(--font-dsp);
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .section-title::after {
+    .scope-glass::before {
       content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--border-subtle);
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 24, 38, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.65;
     }
 
-    .param-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.25rem;
+    /* Laser Button Polish */
+    .btn-laser {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-laser::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      transform: rotate(25deg);
+      transition: all 0.5s ease;
+    }
+    .btn-laser:hover::after {
+      left: 130%;
     }
 
-    @media (max-width: 720px) {
-      .param-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    /* Custom Slim Scrollbars */
+    ::-webkit-scrollbar {
+      height: 4px;
+      width: 4px;
     }
-
-    .param-unit {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
+    ::-webkit-scrollbar-track {
+      background: #090c10;
     }
-
-    .param-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .param-name {
-      font-size: 0.725rem;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
-    .param-val {
-      font-family: var(--font-dsp);
-      font-size: 0.725rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    select, input[type="range"] {
-      width: 100%;
-      outline: none;
-    }
-
-    select {
-      height: 32px;
-      background: var(--panel-surface);
-      border: 1px solid var(--border-outer);
-      color: var(--text-main);
-      font-family: var(--font-ui);
-      font-size: 0.775rem;
-      font-weight: 500;
-      padding: 0 0.5rem;
+    ::-webkit-scrollbar-thumb {
+      background: #242c3b;
       border-radius: 4px;
-      cursor: pointer;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan-neon);
     }
 
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      background: transparent;
-      height: 22px;
-      cursor: pointer;
+    /* Step Sequencer Cells */
+    .seq-step.active {
+      background: linear-gradient(180deg, #00f0ff 0%, #0099cc 100%);
+      color: #03080d;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+      font-weight: 800;
     }
-
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 3px;
-      background: #252a33;
-      border-radius: 2px;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 14px;
-      width: 14px;
-      border-radius: 50%;
-      background: #cdd4df;
-      margin-top: -5.5px;
-      border: 1px solid #14171d;
-      transition: background 0.1s ease;
-    }
-
-    input[type="range"]:hover::-webkit-slider-thumb {
-      background: var(--accent-cyan);
-    }
-
-    .deck-footer {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1rem;
-      margin-top: 0.25rem;
-    }
-
-    .btn-rack {
-      height: 42px;
-      border-radius: 4px;
-      font-family: var(--font-dsp);
-      font-size: 0.775rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.12s ease;
-    }
-
-    .btn-fire {
-      background: #21252e;
-      border: 1px solid var(--border-outer);
-      color: var(--accent-cyan);
-    }
-
-    .btn-fire:hover {
-      background: #292f3b;
-      border-color: var(--accent-cyan);
-    }
-
-    .btn-render {
-      background: linear-gradient(180deg, #1f6feb 0%, #1554bb 100%);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
-    }
-
-    .btn-render:hover {
-      background: linear-gradient(180deg, #388bfd 0%, #1c68e3 100%);
+    .seq-step.current {
+      border-color: #ff3366 !important;
+      box-shadow: 0 0 10px rgba(255, 51, 102, 0.7);
     }
   </style>
 </head>
-<body>
+<body class="w-screen h-screen overflow-hidden flex flex-col bg-[#06080b] text-slate-100">
 
-  <div class="rack-chassis">
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="device-branding">
-        <div class="led-status"></div>
-        <span class="device-name">TRANSIENT SHAPER // M-CLICK</span>
-        <span class="device-version">DSP 2.5 INTERACTIVE</span>
+  <!-- 1. FULL-WIDTH TOP RACK DECK (Brushed Metal Header) -->
+  <header class="brushed-metal border-b border-[#1b222d] px-4 py-2 flex items-center justify-between gap-3 shrink-0 z-30 shadow-md">
+    
+    <!-- Branding & Engine Specification -->
+    <div class="flex items-center gap-3 shrink-0">
+      <div class="flex flex-col gap-1 mr-1">
+        <div class="hex-screw"></div>
+        <div class="hex-screw"></div>
       </div>
 
-      <div class="meter-cluster">
-        <span class="meter-label">PEAK OUT</span>
-        <div class="meter-bar-track">
-          <div class="meter-fill" id="meterFill"></div>
+      <button id="powerBtn" class="flex items-center gap-2 px-2.5 py-1.5 rounded bg-[#090c11] border border-[#263242] hover:border-cyan-400 transition-all cursor-pointer group" title="Master DSP Circuit Bypass">
+        <div id="powerLed" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f0ff] transition-all"></div>
+        <span class="text-[10px] font-bold tracking-widest font-mono text-cyan-400 group-hover:text-cyan-300">ONLINE</span>
+      </button>
+
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="font-['Chakra_Petch'] text-sm sm:text-base font-bold tracking-wider text-slate-100">
+            TRANSIENT<span class="text-cyan-400 font-extrabold ml-1">ARCHITECT</span>
+          </span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-300 font-mono border border-cyan-800/80">v4.0 PRO MAX</span>
         </div>
-        <span class="meter-db" id="meterText">-INF dB</span>
+        <span class="text-[9px] font-mono text-slate-400 hidden lg:inline tracking-wider">MODULAR KINETIC SWITCH & IMPULSE SYNTHESIZER WORKSTATION</span>
       </div>
     </div>
 
-    <!-- Editable Waveform Canvas -->
-    <div class="scope-viewport" id="scopeContainer">
-      <canvas id="scopeCanvas"></canvas>
+    <!-- Center Control Strip: Audition, Auto-Play, A/B Compare, Sequencer BPM -->
+    <div class="flex items-center gap-2 bg-[#080b0f] border border-[#1b2330] p-1 px-2 rounded-lg shadow-inner flex-wrap justify-center">
+      
+      <!-- Primary Audition Laser Button -->
+      <button id="fireBtn" class="btn-laser flex items-center gap-1.5 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 active:scale-95 text-slate-950 font-bold px-3.5 py-1.5 rounded text-xs font-mono tracking-wider shadow-lg shadow-cyan-500/20 cursor-pointer">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span>AUDITION <kbd class="text-[9px] bg-slate-950/40 px-1 rounded text-cyan-200 ml-0.5">[SPACE]</kbd></span>
+      </button>
+
+      <!-- Auto Audition Parameter Toggle -->
+      <button id="autoAuditionBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#10151e] border border-[#232d3d] hover:border-slate-500 text-[11px] font-mono text-slate-300 transition-all cursor-pointer" title="Auto-play sound when adjusting parameters">
+        <span id="autoAuditionLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors"></span>
+        <span>AUTO-PLAY: <span id="autoAuditionStatus" class="text-slate-400">OFF</span></span>
+      </button>
+
+      <div class="h-5 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+      <!-- A/B Comparison Matrix -->
+      <div class="flex items-center bg-[#0d121a] rounded border border-[#202937] p-0.5 text-[10px] font-mono">
+        <button id="slotABtn" class="px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-700/60 cursor-pointer transition-all">A</button>
+        <button id="slotBBtn" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 cursor-pointer transition-all">B</button>
+        <button id="copyAtoBBtn" class="px-1.5 py-0.5 text-slate-500 hover:text-amber-400 cursor-pointer" title="Copy Current Profile to Alternate Slot">➔</button>
+      </div>
+
+      <div class="h-5 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+      <!-- Metronome Cycle Loop Toggle & BPM -->
+      <button id="loopBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#10151e] border border-[#232d3d] hover:border-slate-500 text-[11px] font-mono text-slate-300 transition-all cursor-pointer">
+        <span id="loopLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors"></span>
+        <span>LOOP: <span id="loopStatus" class="text-slate-400">OFF</span></span>
+      </button>
+
+      <select id="bpmSelect" class="bg-[#121720] border border-[#242e3f] text-slate-300 text-[11px] font-mono rounded px-1.5 py-1 outline-none cursor-pointer">
+        <option value="90">90 BPM</option>
+        <option value="120" selected>120 BPM</option>
+        <option value="140">140 BPM</option>
+        <option value="175">175 BPM</option>
+      </select>
     </div>
 
-    <!-- Control Deck -->
-    <div class="control-deck">
-      <div class="deck-section">
-        <div class="section-title">01 / Switch Architecture & Waveform</div>
-        <div class="param-grid">
-          <div class="param-unit">
-            <div class="param-header"><span class="param-name">Preset Profile</span></div>
-            <select id="presetSelect">
-              <option value="Standard Optical">Standard Optical</option>
-              <option value="Crisp Mechanical">Crisp Mechanical</option>
-              <option value="Subtle UI Pop">Subtle UI Pop</option>
-              <option value="Deep Switch">Deep Switch</option>
-            </select>
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header"><span class="param-name">Wave Shape</span></div>
-            <select id="waveSelect">
-              <option value="triangle">Triangle (Plastic Snap)</option>
-              <option value="sine">Sine (Soft Thud)</option>
-              <option value="square">Square (Crisp Edge)</option>
-            </select>
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Pitch Center</span>
-              <span class="param-val" id="pitchVal">1800 Hz</span>
-            </div>
-            <input type="range" id="pitchSlider" min="500" max="4000" step="25" value="1800">
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Down-Decay (P2)</span>
-              <span class="param-val" id="decayVal">16 ms</span>
-            </div>
-            <input type="range" id="decaySlider" min="5" max="45" step="1" value="16">
-          </div>
+    <!-- Right Master Console (Stereo Dual Peak LED Ladders & Batch Exporter) -->
+    <div class="flex items-center gap-3 shrink-0">
+      
+      <!-- Dual Peak Bar Meter -->
+      <div class="flex flex-col gap-1 bg-[#090c10] border border-[#1b2330] p-1.5 px-2.5 rounded-md min-w-[145px]">
+        <div class="flex justify-between items-center text-[9px] font-mono">
+          <span class="text-slate-400 font-semibold tracking-tighter">PEAK L/R</span>
+          <span id="meterDbVal" class="text-cyan-400 font-bold">-INF dB</span>
+        </div>
+        <div class="flex gap-[1.5px] h-2 bg-[#090b0e] p-[1px] rounded overflow-hidden" id="ledLadder">
+          <!-- 16 Dynamic LED Segments -->
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="0"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="1"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="2"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="3"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="4"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="5"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="6"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="7"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="8"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="9"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="10"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="11"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="12"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="13"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="14"></div>
+          <div class="flex-1 bg-slate-800 rounded-[1px] transition-colors" data-idx="15"></div>
         </div>
       </div>
 
-      <div class="deck-section">
-        <div class="section-title">02 / Dynamics, Timbre & Release Stage</div>
-        <div class="param-grid">
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Primary Strike (P1)</span>
-              <span class="param-val" id="toneVolVal">-1.9 dB</span>
-            </div>
-            <input type="range" id="toneVolSlider" min="0.1" max="1" step="0.05" value="0.8">
-          </div>
+      <!-- WAV Exporter Buttons -->
+      <div class="flex items-center gap-1.5">
+        <button id="renderWavBtn" class="btn-laser bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-slate-950 font-bold px-3 py-1.5 rounded text-xs font-mono tracking-wider flex items-center gap-1 shadow-lg shadow-amber-500/10 cursor-pointer" title="Export 16-Bit PCM Broadcast WAV">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          <span class="hidden sm:inline">EXPORT</span> WAV
+        </button>
 
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Release Snap (P3)</span>
-              <span class="param-val" id="releaseVolVal">-7.0 dB</span>
-            </div>
-            <input type="range" id="releaseVolSlider" min="0" max="0.9" step="0.05" value="0.45">
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Release Delay (P3 X)</span>
-              <span class="param-val" id="releaseTimeVal">68 ms</span>
-            </div>
-            <input type="range" id="releaseTimeSlider" min="30" max="140" step="2" value="68">
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">High-Pass Filter</span>
-              <span class="param-val" id="hpfVal">600 Hz</span>
-            </div>
-            <input type="range" id="hpfSlider" min="100" max="2000" step="50" value="600">
-          </div>
-        </div>
+        <button id="batchExportBtn" class="px-2.5 py-1.5 rounded bg-[#131923] hover:bg-[#1c2433] border border-[#273549] text-amber-300 font-mono text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors" title="Generate 4 Velocity-Varied Sample Round-Robins">
+          <span>PACK (x4)</span>
+        </button>
       </div>
 
-      <div class="deck-footer">
-        <button class="btn-rack btn-fire" id="fireButton">TEST STRIKE [SPACE / AUDITION]</button>
-        <button class="btn-rack btn-render" id="renderButton">EXPORT 16-BIT .WAV</button>
+      <div class="flex flex-col gap-1 ml-1">
+        <div class="hex-screw"></div>
+        <div class="hex-screw"></div>
       </div>
+    </div>
+  </header>
+
+  <!-- 2. SUB-BAR: PRESET MANAGER & WORKSPACE VIEW MODE TABS -->
+  <div class="bg-[#0a0d12] px-4 py-1.5 border-b border-[#1b2331] flex items-center justify-between gap-3 text-xs overflow-x-auto shrink-0 z-20">
+    
+    <!-- View Switcher Tabs -->
+    <div class="flex items-center gap-1.5 bg-[#0e131b] p-0.5 rounded-lg border border-[#1f2838]">
+      <button id="viewTabScope" class="view-tab active px-3 py-1 rounded text-[11px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>KINETIC SCOPE & FFT</span>
+      </button>
+      
+      <button id="viewTabSeq" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>16-STEP GROOVE RACK</span>
+      </button>
+
+      <button id="viewTabArena" class="view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>
+        <span>SWITCHBOARD ARENA</span>
+      </button>
+    </div>
+
+    <!-- Quick Preset Bank Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto py-0.5">
+      <span class="font-mono text-[10px] text-slate-500 uppercase tracking-wider font-semibold shrink-0">BANKS:</span>
+      <div class="flex items-center gap-1" id="presetPillsContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Randomize / Mutate & Reset Buttons -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button id="randomizeBtn" class="px-2 py-1 rounded bg-[#141b26] hover:bg-[#1d2737] border border-[#273448] text-amber-300 font-mono text-[10px] flex items-center gap-1 cursor-pointer transition-colors" title="Mutate Kinetic DSP Parameters">
+        <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+        MUTATE
+      </button>
+      <button id="resetDefaultsBtn" class="px-2 py-1 rounded bg-[#141b26] hover:bg-[#1d2737] border border-[#273448] text-slate-400 font-mono text-[10px] cursor-pointer transition-colors">
+        RESET
+      </button>
     </div>
   </div>
 
-  <script>
-    const TOTAL_TIMEFRAME_MS = 160; // 0 to 160ms timeline visible
+  <!-- 3. CENTRAL COMMAND VIEWPORT (Dynamically Fills Screen Height) -->
+  <div class="flex-1 relative w-full overflow-hidden flex flex-col bg-[#05070a]">
+    
+    <!-- VIEW A: INTERACTIVE CRT DUAL-BEAM OSCILLOSCOPE & FFT ANALYZER -->
+    <div id="viewScopeContainer" class="relative w-full h-full scope-glass cursor-crosshair overflow-hidden group">
+      <canvas id="scopeCanvas" class="w-full h-full block relative z-10"></canvas>
+      
+      <!-- Top Left HUD Badges -->
+      <div class="absolute top-3 left-4 z-20 pointer-events-none flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-[#080d14]/85 backdrop-blur-sm border border-cyan-800/80 px-2.5 py-1 rounded font-mono text-[10px] text-cyan-300 shadow">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>CH1: KINETIC ENVELOPE SPLINE</span>
+        </div>
+        <div class="flex items-center gap-2 bg-[#080d14]/85 backdrop-blur-sm border border-amber-800/60 px-2.5 py-1 rounded font-mono text-[10px] text-amber-300 shadow hidden sm:flex">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span>CH2: REAL-TIME FFT SPECTRUM</span>
+        </div>
+      </div>
 
+      <!-- Top Right Instruction & Zoom Window -->
+      <div class="absolute top-3 right-4 z-20 flex items-center gap-2">
+        <div class="bg-black/60 backdrop-blur-sm border border-slate-800/80 px-2.5 py-1 rounded font-mono text-[10px] text-slate-400 hidden md:block">
+          DRAG <span class="text-amber-400 font-bold">P1–P4 HANDLES</span> DIRECTLY ON WAVE
+        </div>
+
+        <select id="timeScaleSelect" class="bg-[#0b1017] border border-[#212b3a] text-cyan-300 text-[10px] font-mono rounded px-2 py-1 outline-none cursor-pointer">
+          <option value="100">SCALE: 100ms</option>
+          <option value="160" selected>SCALE: 160ms</option>
+          <option value="250">SCALE: 250ms</option>
+        </select>
+      </div>
+
+      <!-- Live Floating Coordinate Tooltip -->
+      <div id="nodeTooltip" class="absolute z-30 pointer-events-none hidden bg-[#0c121b] border border-cyan-400/80 text-cyan-200 text-[10px] font-mono px-2 py-1 rounded shadow-2xl transform -translate-x-1/2 -translate-y-9 backdrop-blur-md">
+        P1: ATTACK
+      </div>
+
+      <!-- Bottom Calibration Footer HUD -->
+      <div class="absolute bottom-2 left-4 z-20 pointer-events-none font-mono text-[9px] text-slate-500">
+        Fs: 44.1 kHz • 32-Bit Float DSP Precision • 128-pt High-Pass Sallen-Key
+      </div>
+    </div>
+
+    <!-- VIEW B: 16-STEP GROOVE RACK (Hidden by default) -->
+    <div id="viewSeqContainer" class="hidden w-full h-full p-6 flex flex-col justify-center items-center bg-[#070a0f] relative">
+      <div class="w-full max-w-4xl bg-[#0d121a] border border-[#202b3c] rounded-xl p-5 shadow-2xl flex flex-col gap-4">
+        
+        <div class="flex items-center justify-between border-b border-[#1c2636] pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <h3 class="font-['Chakra_Petch'] text-sm font-bold tracking-wider text-slate-200">16-STEP MECHANICAL RHYTHM GENERATOR</h3>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-mono">
+            <button id="seqClearBtn" class="px-2 py-1 rounded bg-[#161d28] hover:bg-[#1e2736] border border-[#263447] text-slate-300">CLEAR ALL</button>
+            <button id="seqRandomBtn" class="px-2 py-1 rounded bg-[#161d28] hover:bg-[#1e2736] border border-[#263447] text-amber-300">RANDOMIZE GROOVE</button>
+          </div>
+        </div>
+
+        <!-- 16 Interactive Sequencer Buttons -->
+        <div class="grid grid-cols-8 sm:grid-cols-16 gap-1.5" id="seqStepsContainer">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-400">
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="seqHumanizeToggle" checked class="accent-cyan-400">
+              <span>HUMANIZE MICRO-TIMING & PITCH JITTER</span>
+            </label>
+          </div>
+          <span class="text-cyan-400 font-bold">CLICK STEPS TO TOGGLE BEAT PATTERN</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW C: MECHANICAL SWITCHBOARD TEST ARENA (Hidden by default) -->
+    <div id="viewArenaContainer" class="hidden w-full h-full p-6 flex flex-col items-center justify-center bg-[#07090e] relative">
+      <div class="w-full max-w-4xl bg-[#0c1017] border border-[#1e2838] rounded-xl p-6 shadow-2xl flex flex-col items-center gap-6">
+        
+        <div class="text-center">
+          <h3 class="font-['Chakra_Petch'] text-base font-bold tracking-wider text-slate-100 mb-1">INTERACTIVE SWITCHBOARD TESTBED</h3>
+          <p class="text-xs font-mono text-slate-400">PRESS PHYSICAL KEYS ON YOUR KEYBOARD OR TAP THE SWITCHES BELOW</p>
+        </div>
+
+        <!-- Physical Keycap Simulation Row -->
+        <div class="flex items-center gap-3 flex-wrap justify-center" id="switchRow">
+          <div data-profile="blue" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-cyan-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+            <span class="text-[10px] font-mono text-cyan-400 font-bold">CLICKY</span>
+            <div class="w-7 h-7 rounded-sm bg-blue-600/60 border border-blue-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">Q</div>
+            <span class="text-[9px] font-mono text-slate-400">BLUE STRIKE</span>
+          </div>
+
+          <div data-profile="brown" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-amber-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+            <span class="text-[10px] font-mono text-amber-400 font-bold">TACTILE</span>
+            <div class="w-7 h-7 rounded-sm bg-amber-700/60 border border-amber-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">W</div>
+            <span class="text-[9px] font-mono text-slate-400">BROWN BUMP</span>
+          </div>
+
+          <div data-profile="red" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-rose-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+            <span class="text-[10px] font-mono text-rose-400 font-bold">LINEAR</span>
+            <div class="w-7 h-7 rounded-sm bg-rose-700/60 border border-rose-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">E</div>
+            <span class="text-[9px] font-mono text-slate-400">RED THUD</span>
+          </div>
+
+          <div data-profile="mouse" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-emerald-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+            <span class="text-[10px] font-mono text-emerald-400 font-bold">MICRO</span>
+            <div class="w-7 h-7 rounded-sm bg-emerald-600/60 border border-emerald-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">R</div>
+            <span class="text-[9px] font-mono text-slate-400">OPTICAL MOUSE</span>
+          </div>
+
+          <div data-profile="relay" class="switch-cap group w-20 h-24 bg-[#141b26] hover:bg-[#1a2332] active:translate-y-1.5 border-2 border-[#2b394e] active:border-purple-400 rounded-lg flex flex-col items-center justify-between p-2.5 cursor-pointer shadow-lg transition-all">
+            <span class="text-[10px] font-mono text-purple-400 font-bold">HEAVY</span>
+            <div class="w-7 h-7 rounded-sm bg-purple-600/60 border border-purple-400 flex items-center justify-center text-xs font-bold text-white shadow-inner">SPACE</div>
+            <span class="text-[9px] font-mono text-slate-400">RELAY POP</span>
+          </div>
+        </div>
+
+        <div class="w-full p-3 bg-[#080b0f] rounded-lg border border-[#1b2330] flex items-center justify-between text-xs font-mono text-slate-400">
+          <span>RAPID FIRE CPS COUNTER: <strong id="cpsVal" class="text-cyan-400">0.0 CPS</strong></span>
+          <span>TOTAL TRANSIENT BURSTS: <strong id="strikeCountVal" class="text-amber-400">0</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. MASTER 4-COLUMN HARDWARE CONTROL DECK -->
+  <div class="p-3 bg-[#090c10] border-t border-[#1b2330] shrink-0 z-20">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-7xl mx-auto">
+      
+      <!-- MODULE 01: STRIKE EXCITATION & PITCH CHIRP -->
+      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-cyan-400"></div>
+        <div>
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-sm bg-cyan-400"></span>
+              <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">01 / Strike Excitation</h4>
+            </div>
+            <span class="text-[9px] font-mono text-cyan-400 font-semibold">STAGE 1</span>
+          </div>
+
+          <!-- Waveform selector pills -->
+          <div class="grid grid-cols-4 gap-1 p-0.5 bg-[#080b0f] rounded border border-[#1c2330] mb-2.5" id="waveSelector">
+            <button data-wave="triangle" class="wave-btn active py-0.5 text-[9px] font-mono font-bold rounded bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer">TRI</button>
+            <button data-wave="sine" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SINE</button>
+            <button data-wave="square" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SQR</button>
+            <button data-wave="sawtooth" class="wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer">SAW</button>
+          </div>
+
+          <!-- Dual Rotary Knobs -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="pitch" data-min="400" data-max="4500" data-step="10" data-unit="Hz">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--cyan-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Pitch</span>
+              <span class="text-[10px] font-mono text-cyan-300 font-bold" id="lbl-pitch">1800 Hz</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="strikeVol" data-min="0.05" data-max="1.0" data-step="0.01" data-unit="dB">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--cyan-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Strike (P1)</span>
+              <span class="text-[10px] font-mono text-cyan-300 font-bold" id="lbl-strikeVol">-1.9 dB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-400">NOISE CHURN</span>
+          <div class="flex items-center gap-1.5">
+            <input type="range" id="noiseMixSlider" min="0" max="1" step="0.05" value="0.45" class="w-16 accent-cyan-400 h-1 bg-slate-800 rounded">
+            <span id="noiseMixVal" class="text-cyan-300 w-6 text-right">45%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 02: DYNAMICS, BODY & CAVITY RESONANCE -->
+      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-amber-400"></div>
+        <div>
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-sm bg-amber-400"></span>
+              <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">02 / Body & Timbre</h4>
+            </div>
+            <span class="text-[9px] font-mono text-amber-400 font-semibold">STAGE 2</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="decayMs" data-min="4" data-max="45" data-step="1" data-unit="ms">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--amber-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Decay (P2)</span>
+              <span class="text-[10px] font-mono text-amber-300 font-bold" id="lbl-decayMs">16 ms</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="hpf" data-min="80" data-max="2400" data-step="20" data-unit="Hz">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--amber-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">HP Filter</span>
+              <span class="text-[10px] font-mono text-amber-300 font-bold" id="lbl-hpf">600 Hz</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-400">CHASSIS Q</span>
+          <div class="flex items-center gap-1.5">
+            <input type="range" id="qSlider" min="0.5" max="8.0" step="0.1" value="2.4" class="w-16 accent-amber-400 h-1 bg-slate-800 rounded">
+            <span id="qVal" class="text-amber-300 w-6 text-right">2.4</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 03: UP-RELEASE & MECHANICAL SPRING -->
+      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-emerald-400"></div>
+        <div>
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-sm bg-emerald-400"></span>
+              <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">03 / Up-Release Snap</h4>
+            </div>
+            <span class="text-[9px] font-mono text-emerald-400 font-semibold">STAGE 3</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="releaseTimeMs" data-min="25" data-max="135" data-step="1" data-unit="ms">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--emerald-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Rel Time (P3)</span>
+              <span class="text-[10px] font-mono text-emerald-300 font-bold" id="lbl-releaseTimeMs">68 ms</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="releaseVol" data-min="0.0" data-max="0.9" data-step="0.02" data-unit="dB">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="var(--emerald-neon)" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Rel Vol</span>
+              <span class="text-[10px] font-mono text-emerald-300 font-bold" id="lbl-releaseVol">-7.0 dB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-400">SPRING PING</span>
+          <input type="checkbox" id="springToggle" checked class="accent-emerald-400 cursor-pointer">
+        </div>
+      </section>
+
+      <!-- MODULE 04: SATURATION DRIVE & STEREO SPATIAL WIDTH -->
+      <section class="bg-[#0e1218] rounded-lg border border-[#1c2432] p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-purple-400"></div>
+        <div>
+          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#18202d]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-sm bg-purple-400"></span>
+              <h4 class="font-['Chakra_Petch'] text-xs font-bold tracking-wider text-slate-200 uppercase">04 / Drive & Width</h4>
+            </div>
+            <span class="text-[9px] font-mono text-purple-400 font-semibold">STAGE 4</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="drive" data-min="1.0" data-max="4.0" data-step="0.1" data-unit="x">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Hard Drive</span>
+              <span class="text-[10px] font-mono text-purple-300 font-bold" id="lbl-drive">1.3x</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="rotary-knob" data-param="subThump" data-min="0.0" data-max="0.8" data-step="0.05" data-unit="dB">
+                <svg class="w-11 h-11" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="24" fill="#141923" stroke="#252f40" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="20" fill="#0d1117" stroke="#1c2331" stroke-width="1.5"/>
+                  <path class="knob-track" d="" fill="none" stroke="#2a364a" stroke-width="3" stroke-linecap="round"/>
+                  <path class="knob-fill" d="" fill="none" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+                  <line class="knob-needle" x1="30" y1="30" x2="30" y2="13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Sub Thump</span>
+              <span class="text-[10px] font-mono text-purple-300 font-bold" id="lbl-subThump">0.15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 border-t border-[#161e2b] flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-400">TAIL BOUND</span>
+          <div class="flex items-center gap-1.5">
+            <input type="range" id="tailSlider" min="80" max="155" step="1" value="110" class="w-16 accent-purple-400 h-1 bg-slate-800 rounded">
+            <span id="tailVal" class="text-purple-300 w-8 text-right">110ms</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- 5. BOTTOM TELEMETRY BAR -->
+  <footer class="bg-[#07090d] border-t border-[#18202d] px-4 py-1.5 flex items-center justify-between text-[10px] font-mono text-slate-500 shrink-0 z-20">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>AUDIO: <span id="audioContextStatus" class="text-slate-200">STANDBY</span></span>
+      <span class="hidden sm:inline">|</span>
+      <span class="hidden sm:inline">BUFFER: <span class="text-cyan-400">128 SAMPLES</span></span>
+      <span class="hidden sm:inline">|</span>
+      <span class="hidden sm:inline">DSP ENGINE: <span class="text-amber-400">DUAL-LAYER TRANSIENT IMPULSE</span></span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button id="copyDataUriBtn" class="hover:text-slate-200 flex items-center gap-1 cursor-pointer transition-colors">
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>COPY DATA URI</span>
+      </button>
+      <span class="text-slate-700">|</span>
+      <span>PRESS [SPACE] OR CLICK AUDITION</span>
+    </div>
+  </footer>
+
+  <!-- Floating Toast Notification System -->
+  <div id="toast" class="fixed bottom-10 right-6 z-50 bg-[#0f141d] border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg shadow-2xl font-mono text-xs flex items-center gap-2 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMsg">Telemetry Online</span>
+  </div>
+
+  <script>
+    let TOTAL_TIMEFRAME_MS = 160;
+
+    // Master DSP State Object
     const state = {
+      active: true,
+      autoAudition: false,
       pitch: 1800,
       decayMs: 16,
-      strikeVol: 0.8,
+      strikeVol: 0.82,
       releaseVol: 0.45,
       releaseTimeMs: 68,
       tailMs: 110,
       hpf: 600,
-      wave: "triangle"
+      wave: "triangle",
+      noiseMix: 0.45,
+      bodyQ: 2.4,
+      drive: 1.3,
+      subThump: 0.15,
+      metallicSpring: true,
+      looping: false,
+      bpm: 120,
+      currentSlot: 'A'
     };
 
-    // Four interactive envelope control nodes
-    // x: time (ms), y: normalized amp (0 to 1)
+    // A/B Comparison Buffers
+    const slotAState = Object.assign({}, state);
+    const slotBState = Object.assign({}, state, {
+      pitch: 2800,
+      decayMs: 9,
+      strikeVol: 0.95,
+      releaseVol: 0.6,
+      releaseTimeMs: 52,
+      tailMs: 90,
+      hpf: 1100,
+      noiseMix: 0.65,
+      bodyQ: 3.5,
+      drive: 1.8
+    });
+
+    // 16-Step Pattern Sequencer State
+    const sequencerPattern = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0];
+    let currentSeqStep = 0;
+    let seqIntervalId = null;
+
+    // Interactive Spline Nodes on Oscilloscope Canvas
     const nodes = [
-      { id: 'strike', x: 2, y: state.strikeVol, label: 'P1: STRIKE ATTACK' },
-      { id: 'decay',  x: 2 + state.decayMs, y: 0.05, label: 'P2: DOWN-DECAY' },
-      { id: 'release',x: state.releaseTimeMs, y: state.releaseVol, label: 'P3: UP-RELEASE' },
-      { id: 'tail',   x: state.tailMs, y: 0.01, label: 'P4: TAIL' }
+      { id: 'strike', x: 2, y: state.strikeVol, label: 'P1: ATTACK', color: '#00f0ff' },
+      { id: 'decay',  x: 2 + state.decayMs, y: 0.05, label: 'P2: DECAY', color: '#ff9d00' },
+      { id: 'release',x: state.releaseTimeMs, y: state.releaseVol, label: 'P3: RELEASE', color: '#00e676' },
+      { id: 'tail',   x: state.tailMs, y: 0.01, label: 'P4: TAIL', color: '#c084fc' }
+    ];
+
+    // Presets Library
+    const presets = [
+      { name: "Crisp Blue Switch", pitch: 2750, decayMs: 11, strikeVol: 0.95, releaseVol: 0.55, releaseTimeMs: 52, tailMs: 95, hpf: 1050, wave: "triangle", noiseMix: 0.6, bodyQ: 3.2, drive: 1.6, subThump: 0.05, metallicSpring: true },
+      { name: "Optical Mouse", pitch: 1800, decayMs: 16, strikeVol: 0.82, releaseVol: 0.45, releaseTimeMs: 68, tailMs: 110, hpf: 600, wave: "triangle", noiseMix: 0.45, bodyQ: 2.4, drive: 1.3, subThump: 0.15, metallicSpring: true },
+      { name: "Tactile Brown", pitch: 1450, decayMs: 20, strikeVol: 0.78, releaseVol: 0.38, releaseTimeMs: 62, tailMs: 115, hpf: 420, wave: "sine", noiseMix: 0.3, bodyQ: 2.1, drive: 1.2, subThump: 0.25, metallicSpring: true },
+      { name: "Linear Red Thud", pitch: 950, decayMs: 24, strikeVol: 0.70, releaseVol: 0.15, releaseTimeMs: 70, tailMs: 120, hpf: 240, wave: "sine", noiseMix: 0.15, bodyQ: 1.4, drive: 1.0, subThump: 0.45, metallicSpring: false },
+      { name: "Heavy Relay Pop", pitch: 1150, decayMs: 22, strikeVol: 0.90, releaseVol: 0.65, releaseTimeMs: 82, tailMs: 135, hpf: 350, wave: "square", noiseMix: 0.4, bodyQ: 4.8, drive: 2.4, subThump: 0.30, metallicSpring: true },
+      { name: "Snare Snap Transient", pitch: 3400, decayMs: 14, strikeVol: 1.0, releaseVol: 0.35, releaseTimeMs: 55, tailMs: 115, hpf: 900, wave: "sawtooth", noiseMix: 0.8, bodyQ: 2.8, drive: 2.8, subThump: 0.0, metallicSpring: false }
     ];
 
     let audioCtx = null;
+    let masterAnalyser = null;
+    let loopIntervalId = null;
     let activeDragNode = null;
     let hoveredNode = null;
     let currentPeak = 0;
-    let playheadMs = -1;
-    let playheadStartTime = 0;
+    let playheadStartTime = -1;
+    let strikeCounter = 0;
+    let lastClicksTimestamps = [];
 
     function getAudioContext() {
       if (!audioCtx) {
         const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtxClass) audioCtx = new AudioCtxClass();
+        if (AudioCtxClass) {
+          audioCtx = new AudioCtxClass();
+          masterAnalyser = audioCtx.createAnalyser();
+          masterAnalyser.fftSize = 128;
+          masterAnalyser.smoothingTimeConstant = 0.82;
+          masterAnalyser.connect(audioCtx.destination);
+          document.getElementById('audioContextStatus').textContent = 'ONLINE (44.1 kHz)';
+        }
       }
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -467,22 +772,50 @@
       return audioCtx;
     }
 
-    function renderClickNodes(ctx, destination, startTime) {
-      const decaySec = Math.max(0.005, state.decayMs / 1000);
+    // Core DSP Synthesis Engine
+    function synthesizeClick(ctx, destination, startTime, velocity = 1.0, pitchJitter = 1.0) {
+      if (!state.active) return;
+      const decaySec = Math.max(0.003, (state.decayMs / 1000) * (0.9 + velocity * 0.1));
+      const targetPitch = state.pitch * pitchJitter;
+
+      // Master High-Pass Isolation Filter
       const hpFilter = ctx.createBiquadFilter();
       hpFilter.type = "highpass";
       hpFilter.frequency.setValueAtTime(state.hpf, startTime);
-      hpFilter.connect(destination);
 
-      // 1. Primary strike down-click
+      // Chassis Body Resonator
+      const bodyResonator = ctx.createBiquadFilter();
+      bodyResonator.type = "peaking";
+      bodyResonator.frequency.setValueAtTime(targetPitch * 0.75, startTime);
+      bodyResonator.Q.setValueAtTime(state.bodyQ, startTime);
+      bodyResonator.gain.setValueAtTime(4.0, startTime);
+
+      // Waveshaper Saturation
+      const waveshaper = ctx.createWaveShaper();
+      const curve = new Float32Array(512);
+      const k = state.drive * 8;
+      for (let i = 0; i < 512; i++) {
+        const x = (i * 2) / 512 - 1;
+        curve[i] = ((Math.PI + k) * x) / (Math.PI + k * Math.abs(x));
+      }
+      waveshaper.curve = curve;
+      waveshaper.oversample = '2x';
+
+      // Connect master bus
+      hpFilter.connect(bodyResonator);
+      bodyResonator.connect(waveshaper);
+      waveshaper.connect(destination);
+
+      // 1. Primary Impulse Down-Stroke
       if (state.strikeVol > 0.01) {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = state.wave;
-        osc.frequency.setValueAtTime(state.pitch * 1.5, startTime);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(60, state.pitch * 0.2), startTime + decaySec);
 
-        gain.gain.setValueAtTime(state.strikeVol, startTime);
+        osc.frequency.setValueAtTime(targetPitch * 1.6, startTime);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(50, targetPitch * 0.18), startTime + decaySec);
+
+        gain.gain.setValueAtTime(state.strikeVol * velocity, startTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec);
 
         osc.connect(gain);
@@ -490,67 +823,117 @@
         osc.start(startTime);
         osc.stop(startTime + decaySec);
 
-        // Snap Noise
-        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * decaySec));
-        const noiseBuf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const out = noiseBuf.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          out[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        // Snap Noise Burst
+        if (state.noiseMix > 0.01) {
+          const bufferSize = Math.max(128, Math.floor(ctx.sampleRate * decaySec));
+          const noiseBuf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const out = noiseBuf.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            out[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+          }
+          const noise = ctx.createBufferSource();
+          noise.buffer = noiseBuf;
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(state.strikeVol * state.noiseMix * 0.65 * velocity, startTime);
+          noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec);
+
+          noise.connect(noiseGain);
+          noiseGain.connect(hpFilter);
+          noise.start(startTime);
+          noise.stop(startTime + decaySec);
         }
-        const noise = ctx.createBufferSource();
-        noise.buffer = noiseBuf;
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(state.strikeVol * 0.4, startTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec);
-        noise.connect(noiseGain);
-        noiseGain.connect(hpFilter);
-        noise.start(startTime);
-        noise.stop(startTime + decaySec);
       }
 
-      // 2. Up-click / release snap
-      if (state.releaseVol > 0.02 && state.releaseTimeMs > 0) {
+      // 2. Sub-Thump Low-End Acoustic Body (Keycap cavity mass)
+      if (state.subThump > 0.01) {
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = "sine";
+        subOsc.frequency.setValueAtTime(140, startTime);
+        subOsc.frequency.exponentialRampToValueAtTime(55, startTime + decaySec * 1.8);
+
+        subGain.gain.setValueAtTime(state.subThump * velocity, startTime);
+        subGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec * 2.0);
+
+        subOsc.connect(subGain);
+        subGain.connect(destination);
+        subOsc.start(startTime);
+        subOsc.stop(startTime + decaySec * 2.1);
+      }
+
+      // 3. Up-Click / Release Kinetic Spring Snap
+      if (state.releaseVol > 0.01 && state.releaseTimeMs > 0) {
         const relStart = startTime + (state.releaseTimeMs / 1000);
-        const relDecay = Math.max(0.004, decaySec * 0.65);
+        const relDecay = Math.max(0.003, decaySec * 0.7);
+
         const oscRel = ctx.createOscillator();
         const gainRel = ctx.createGain();
-
         oscRel.type = state.wave;
-        oscRel.frequency.setValueAtTime(state.pitch * 1.3, relStart);
-        oscRel.frequency.exponentialRampToValueAtTime(Math.max(80, state.pitch * 0.3), relStart + relDecay);
+        oscRel.frequency.setValueAtTime(targetPitch * 1.35, relStart);
+        oscRel.frequency.exponentialRampToValueAtTime(Math.max(80, targetPitch * 0.28), relStart + relDecay);
 
-        gainRel.gain.setValueAtTime(state.releaseVol, relStart);
+        gainRel.gain.setValueAtTime(state.releaseVol * velocity, relStart);
         gainRel.gain.exponentialRampToValueAtTime(0.0001, relStart + relDecay);
 
         oscRel.connect(gainRel);
         gainRel.connect(hpFilter);
         oscRel.start(relStart);
         oscRel.stop(relStart + relDecay);
+
+        if (state.metallicSpring) {
+          const springOsc = ctx.createOscillator();
+          const springGain = ctx.createGain();
+          springOsc.type = "sine";
+          springOsc.frequency.setValueAtTime(targetPitch * 2.8, relStart);
+
+          springGain.gain.setValueAtTime(state.releaseVol * 0.25 * velocity, relStart);
+          springGain.gain.exponentialRampToValueAtTime(0.0001, relStart + relDecay * 1.4);
+
+          springOsc.connect(springGain);
+          springGain.connect(hpFilter);
+          springOsc.start(relStart);
+          springOsc.stop(relStart + relDecay * 1.5);
+        }
       }
     }
 
-    function triggerClickSound() {
+    function triggerAudition(velocity = 1.0, pitchJitter = 1.0) {
       const ctx = getAudioContext();
       if (!ctx) return;
-
       const now = ctx.currentTime;
-      renderClickNodes(ctx, ctx.destination, now);
-      currentPeak = Math.min(1.0, state.strikeVol);
+      synthesizeClick(ctx, masterAnalyser || ctx.destination, now, velocity, pitchJitter);
+      
+      currentPeak = Math.min(1.0, state.strikeVol * (state.drive * 0.8) * velocity);
       playheadStartTime = performance.now();
-      playheadMs = 0;
+
+      // Telemetry CPS & Burst Counters
+      strikeCounter++;
+      document.getElementById('strikeCountVal').textContent = strikeCounter;
+      const pNow = performance.now();
+      lastClicksTimestamps.push(pNow);
+      lastClicksTimestamps = lastClicksTimestamps.filter(t => pNow - t < 1000);
+      document.getElementById('cpsVal').textContent = `${lastClicksTimestamps.length.toFixed(1)} CPS`;
+
+      // Visual flash on fire button
+      const fireBtn = document.getElementById('fireBtn');
+      fireBtn.classList.add('ring-2', 'ring-cyan-300');
+      setTimeout(() => fireBtn.classList.remove('ring-2', 'ring-cyan-300'), 100);
     }
 
-    // Interactive Waveform & Envelope Canvas
+    // Canvas Scope Setup
     const canvas = document.getElementById('scopeCanvas');
-    const container = document.getElementById('scopeContainer');
+    const container = document.getElementById('viewScopeContainer');
     const ctx = canvas.getContext('2d');
-    const meterFill = document.getElementById('meterFill');
-    const meterText = document.getElementById('meterText');
+    const tooltip = document.getElementById('nodeTooltip');
+    const ledLadder = document.getElementById('ledLadder');
+    const meterDbVal = document.getElementById('meterDbVal');
 
     let canvasWidth = 0;
     let canvasHeight = 0;
 
     function resizeCanvas() {
+      if (!container) return;
       const rect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       canvasWidth = rect.width;
@@ -561,12 +944,11 @@
       ctx.scale(dpr, dpr);
     }
     window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    setTimeout(resizeCanvas, 60);
 
-    // Time/Amp coordinate transformation helpers
-    const PAD_LEFT = 20;
-    const PAD_RIGHT = 20;
-    const PAD_TOP = 40;
+    const PAD_LEFT = 40;
+    const PAD_RIGHT = 40;
+    const PAD_TOP = 46;
     const PAD_BOTTOM = 30;
 
     function toScreenX(ms) {
@@ -593,36 +975,33 @@
       return Math.max(0.01, Math.min(raw, 1.0));
     }
 
-    function syncStateFromNodes() {
-      state.strikeVol = nodes[0].y;
-      state.decayMs = Math.max(4, nodes[1].x - nodes[0].x);
-      state.releaseTimeMs = nodes[2].x;
-      state.releaseVol = nodes[2].y;
-      state.tailMs = Math.max(nodes[2].x + 10, nodes[3].x);
-      updateInterface();
-    }
-
     function syncNodesFromState() {
       nodes[0].y = state.strikeVol;
       nodes[1].x = nodes[0].x + state.decayMs;
       nodes[2].x = state.releaseTimeMs;
       nodes[2].y = state.releaseVol;
-      nodes[3].x = Math.max(nodes[2].x + 15, state.tailMs);
+      nodes[3].x = Math.max(nodes[2].x + 10, state.tailMs);
     }
 
-    // Pointer Event Listeners for dragging nodes
+    function syncStateFromNodes() {
+      state.strikeVol = nodes[0].y;
+      state.decayMs = Math.max(4, Math.round(nodes[1].x - nodes[0].x));
+      state.releaseTimeMs = Math.round(nodes[2].x);
+      state.releaseVol = nodes[2].y;
+      state.tailMs = Math.round(Math.max(nodes[2].x + 10, nodes[3].x));
+      updateInterface();
+    }
+
     container.addEventListener('pointerdown', (e) => {
       const rect = container.getBoundingClientRect();
       const px = e.clientX - rect.left;
       const py = e.clientY - rect.top;
 
-      // Check if clicking existing node
       let found = null;
       for (const node of nodes) {
         const nx = toScreenX(node.x);
         const ny = toScreenY(node.y);
-        const dist = Math.hypot(px - nx, py - ny);
-        if (dist <= 14) {
+        if (Math.hypot(px - nx, py - ny) <= 18) {
           found = node;
           break;
         }
@@ -632,7 +1011,7 @@
         activeDragNode = found;
         container.setPointerCapture(e.pointerId);
       } else {
-        triggerClickSound();
+        if (state.autoAudition) triggerAudition();
       }
     });
 
@@ -642,73 +1021,106 @@
       const py = e.clientY - rect.top;
 
       if (activeDragNode) {
-        // Drag restrictions per node type
         if (activeDragNode.id === 'strike') {
           activeDragNode.y = toAmp(py);
         } else if (activeDragNode.id === 'decay') {
-          activeDragNode.x = Math.max(nodes[0].x + 4, Math.min(toTimeMs(px), nodes[2].x - 5));
+          activeDragNode.x = Math.max(nodes[0].x + 4, Math.min(toTimeMs(px), nodes[2].x - 6));
         } else if (activeDragNode.id === 'release') {
           activeDragNode.x = Math.max(nodes[1].x + 6, Math.min(toTimeMs(px), nodes[3].x - 8));
           activeDragNode.y = toAmp(py);
         } else if (activeDragNode.id === 'tail') {
-          activeDragNode.x = Math.max(nodes[2].x + 8, Math.min(toTimeMs(px), TOTAL_TIMEFRAME_MS - 4));
+          activeDragNode.x = Math.max(nodes[2].x + 8, Math.min(toTimeMs(px), TOTAL_TIMEFRAME_MS - 2));
         }
 
         syncStateFromNodes();
+
+        tooltip.style.left = `${px}px`;
+        tooltip.style.top = `${py}px`;
+        tooltip.style.display = 'block';
+        tooltip.textContent = `${activeDragNode.label}: ${activeDragNode.id === 'decay' ? state.decayMs + 'ms' : (activeDragNode.id === 'strike' ? toDb(activeDragNode.y) : (activeDragNode.id === 'release' ? `${Math.round(activeDragNode.x)}ms / ${toDb(activeDragNode.y)}` : `${Math.round(activeDragNode.x)}ms`))}`;
       } else {
-        // Hover state
         hoveredNode = null;
         for (const node of nodes) {
           const nx = toScreenX(node.x);
           const ny = toScreenY(node.y);
-          if (Math.hypot(px - nx, py - ny) <= 12) {
+          if (Math.hypot(px - nx, py - ny) <= 15) {
             hoveredNode = node;
             break;
           }
         }
         container.style.cursor = hoveredNode ? 'grab' : 'crosshair';
+        tooltip.style.display = 'none';
       }
     });
 
-    const releasePointer = (e) => {
+    const releasePointer = () => {
       if (activeDragNode) {
         activeDragNode = null;
         container.style.cursor = 'default';
-        triggerClickSound();
+        tooltip.style.display = 'none';
+        if (state.autoAudition) triggerAudition();
       }
     };
     container.addEventListener('pointerup', releasePointer);
     container.addEventListener('pointercancel', releasePointer);
 
-    // Render Oscilloscope & Envelope Overlay
     let lastRenderTime = performance.now();
-    function render(currentTime) {
+    const fftDataArray = new Uint8Array(64);
+
+    function renderScope(currentTime) {
       const dt = Math.min((currentTime - lastRenderTime) / 1000, 0.1);
       lastRenderTime = currentTime;
 
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-      // 1. Oscilloscope Grid
+      const midY = canvasHeight / 2;
+      const graphH = (canvasHeight / 2) - PAD_BOTTOM;
+
+      // 1. Oscilloscope Graticule Grid
       ctx.save();
-      ctx.strokeStyle = '#14181f';
+      ctx.strokeStyle = 'rgba(28, 40, 56, 0.65)';
       ctx.lineWidth = 1;
 
-      // 10ms Division ticks
-      for (let ms = 0; ms <= TOTAL_TIMEFRAME_MS; ms += 20) {
+      // Horizontal dB Attenuation lines
+      const dbLines = [0.0, 0.25, 0.5, 0.75, 1.0];
+      for (const amp of dbLines) {
+        const yTop = midY - (amp * graphH);
+        const yBot = midY + (amp * graphH);
+
+        ctx.beginPath();
+        ctx.setLineDash([3, 4]);
+        ctx.moveTo(PAD_LEFT, yTop);
+        ctx.lineTo(canvasWidth - PAD_RIGHT, yTop);
+        ctx.moveTo(PAD_LEFT, yBot);
+        ctx.lineTo(canvasWidth - PAD_RIGHT, yBot);
+        ctx.stroke();
+
+        if (amp > 0) {
+          ctx.fillStyle = '#445163';
+          ctx.font = '500 8.5px "JetBrains Mono", monospace';
+          const dbText = `${(20 * Math.log10(amp)).toFixed(0)}dB`;
+          ctx.fillText(dbText, 8, yTop + 3);
+        }
+      }
+
+      // Vertical ms ticks
+      ctx.setLineDash([2, 5]);
+      const stepMs = TOTAL_TIMEFRAME_MS <= 100 ? 10 : (TOTAL_TIMEFRAME_MS <= 160 ? 20 : 25);
+      for (let ms = 0; ms <= TOTAL_TIMEFRAME_MS; ms += stepMs) {
         const x = toScreenX(ms);
         ctx.beginPath();
-        ctx.moveTo(x, PAD_TOP - 10);
+        ctx.moveTo(x, PAD_TOP - 15);
         ctx.lineTo(x, canvasHeight - PAD_BOTTOM);
         ctx.stroke();
 
-        ctx.fillStyle = '#444d5c';
-        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#4e5b70';
+        ctx.font = '500 8.5px "JetBrains Mono", monospace';
         ctx.fillText(`${ms}ms`, x - 10, canvasHeight - 12);
       }
 
-      // Horizontal centerline
-      const midY = canvasHeight / 2;
-      ctx.strokeStyle = '#222832';
+      // Center zero-line
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#222d3d';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(PAD_LEFT, midY);
@@ -716,33 +1128,55 @@
       ctx.stroke();
       ctx.restore();
 
-      // 2. High-Frequency Transient Oscillations (The Synthetic Audio Signal)
+      // 2. Real-Time FFT Spectral Bars (Channel 2 background layer)
+      if (masterAnalyser) {
+        masterAnalyser.getByteFrequencyData(fftDataArray);
+        ctx.save();
+        const barCount = 32;
+        const barWidth = (canvasWidth - PAD_LEFT - PAD_RIGHT) / barCount;
+        for (let b = 0; b < barCount; b++) {
+          const val = fftDataArray[b] / 255.0;
+          if (val > 0.02) {
+            const bx = PAD_LEFT + b * barWidth;
+            const bh = val * graphH * 0.85;
+            ctx.fillStyle = `rgba(255, 157, 0, ${val * 0.25})`;
+            ctx.fillRect(bx + 1, midY - bh, barWidth - 2, bh * 2);
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Transient Waveform Phosphor Glow Trace
       ctx.save();
-      ctx.strokeStyle = '#00d2ff';
-      ctx.shadowColor = 'rgba(0, 210, 255, 0.4)';
-      ctx.shadowBlur = 8;
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00f0ff';
+      ctx.shadowColor = 'rgba(0, 240, 255, 0.65)';
+      ctx.shadowBlur = 9;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
 
-      const totalSteps = 240;
+      const totalSteps = 300;
       for (let i = 0; i <= totalSteps; i++) {
         const ms = (i / totalSteps) * TOTAL_TIMEFRAME_MS;
         const x = toScreenX(ms);
 
-        // Envelope shape calculation from interactive nodes
         let env = 0;
-        if (ms < nodes[1].x) {
-          const t = Math.max(0, (ms - nodes[0].x) / (nodes[1].x - nodes[0].x));
-          env = nodes[0].y * Math.exp(-t * 5);
+        if (ms < nodes[0].x) {
+          env = (ms / nodes[0].x) * nodes[0].y;
+        } else if (ms >= nodes[0].x && ms < nodes[1].x) {
+          const t = (ms - nodes[0].x) / (nodes[1].x - nodes[0].x);
+          env = nodes[0].y * Math.exp(-t * 4.8);
         } else if (ms >= nodes[1].x && ms < nodes[2].x) {
-          env = 0.02;
-        } else if (ms >= nodes[2].x) {
-          const tRel = Math.max(0, (ms - nodes[2].x) / (nodes[3].x - nodes[2].x));
-          env = nodes[2].y * Math.exp(-tRel * 6);
+          env = 0.025;
+        } else if (ms >= nodes[2].x && ms < nodes[3].x) {
+          const tRel = (ms - nodes[2].x) / (nodes[3].x - nodes[2].x);
+          env = nodes[2].y * Math.exp(-tRel * 5.2);
+        } else {
+          env = 0.005;
         }
 
-        const osc = Math.sin(ms * 0.15 * (state.pitch / 500));
-        const y = midY - (osc * env * ((canvasHeight / 2) - PAD_BOTTOM));
+        const osc = Math.sin(ms * 0.18 * (state.pitch / 500));
+        const noise = (Math.random() * 2 - 1) * 0.08 * (ms < nodes[1].x ? state.noiseMix : 0);
+        const y = midY - ((osc + noise) * env * graphH);
 
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -750,157 +1184,551 @@
       ctx.stroke();
       ctx.restore();
 
-      // 3. Interactive Envelope Shaper Curve & Guide
+      // 4. Kinetic Spline Guide Dashed Line
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 159, 67, 0.6)';
+      ctx.strokeStyle = 'rgba(255, 157, 0, 0.7)';
       ctx.setLineDash([4, 4]);
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(toScreenX(0), toScreenY(0));
+      ctx.moveTo(toScreenX(0), midY);
       for (const node of nodes) {
         ctx.lineTo(toScreenX(node.x), toScreenY(node.y));
       }
-      ctx.lineTo(toScreenX(TOTAL_TIMEFRAME_MS), toScreenY(0));
+      ctx.lineTo(toScreenX(TOTAL_TIMEFRAME_MS), midY);
       ctx.stroke();
-      ctx.setLineDash([]);
       ctx.restore();
 
-      // 4. Render Control Nodes (Handles)
+      // 5. Render Node Control Handles (P1-P4)
       for (const node of nodes) {
         const nx = toScreenX(node.x);
         const ny = toScreenY(node.y);
         const isHovered = (hoveredNode === node || activeDragNode === node);
 
         ctx.save();
-        ctx.fillStyle = isHovered ? '#fff' : 'var(--panel-main)';
-        ctx.strokeStyle = isHovered ? '#00d2ff' : '#ff9f43';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
         ctx.beginPath();
-        ctx.arc(nx, ny, isHovered ? 6.5 : 5, 0, Math.PI * 2);
+        ctx.moveTo(nx, ny);
+        ctx.lineTo(nx, midY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(nx, ny, isHovered ? 12 : 7, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255, 157, 0, 0.15)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(nx, ny, isHovered ? 6 : 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered ? '#ffffff' : '#0c1017';
+        ctx.strokeStyle = isHovered ? '#00f0ff' : node.color;
+        ctx.lineWidth = 2.5;
         ctx.fill();
         ctx.stroke();
 
-        // Node Label
-        ctx.fillStyle = isHovered ? '#00d2ff' : '#8c95a3';
-        ctx.font = '600 9px "JetBrains Mono", monospace';
-        ctx.fillText(node.label, nx - 16, ny - 12);
+        ctx.fillStyle = isHovered ? '#00f0ff' : '#94a3b8';
+        ctx.font = '700 9px "JetBrains Mono", monospace';
+        ctx.fillText(node.label, nx - 18, ny - 10);
         ctx.restore();
       }
 
-      // 5. Audio Playhead Sweep
-      if (playheadMs >= 0) {
+      // 6. Playhead Sweep Laser Line
+      if (playheadStartTime > 0) {
         const elapsed = performance.now() - playheadStartTime;
-        playheadMs = elapsed;
-        if (playheadMs <= TOTAL_TIMEFRAME_MS) {
-          const phX = toScreenX(playheadMs);
+        if (elapsed <= TOTAL_TIMEFRAME_MS) {
+          const phX = toScreenX(elapsed);
           ctx.save();
-          ctx.strokeStyle = '#ff4757';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#ff3366';
+          ctx.shadowColor = 'rgba(255, 51, 102, 0.8)';
+          ctx.shadowBlur = 8;
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(phX, PAD_TOP - 15);
+          ctx.moveTo(phX, PAD_TOP - 12);
           ctx.lineTo(phX, canvasHeight - PAD_BOTTOM);
           ctx.stroke();
           ctx.restore();
         } else {
-          playheadMs = -1;
+          playheadStartTime = -1;
         }
       }
 
-      // 6. Real-time Peak Output Meter
+      // 7. Segmented Dynamic LED Ladder Meter
       if (currentPeak > 0.001) {
-        currentPeak = Math.max(0, currentPeak - dt * 2.5);
-        const pct = Math.min(100, Math.round(currentPeak * 100));
-        meterFill.style.width = `${pct}%`;
+        currentPeak = Math.max(0, currentPeak - dt * 2.8);
+        const activeSegments = Math.min(16, Math.round(currentPeak * 16));
         const db = 20 * Math.log10(Math.max(0.0001, currentPeak));
-        meterText.textContent = `${db.toFixed(1)} dB`;
+        meterDbVal.textContent = `${db.toFixed(1)} dB`;
+
+        const segments = ledLadder.children;
+        for (let i = 0; i < segments.length; i++) {
+          if (i < activeSegments) {
+            if (i < 10) segments[i].style.backgroundColor = '#00e676';
+            else if (i < 14) segments[i].style.backgroundColor = '#ffb300';
+            else segments[i].style.backgroundColor = '#ff3366';
+          } else {
+            segments[i].style.backgroundColor = '#1c2432';
+          }
+        }
       } else {
-        meterFill.style.width = '0%';
-        meterText.textContent = "-INF dB";
+        meterDbVal.textContent = "-INF dB";
+        const segments = ledLadder.children;
+        for (let i = 0; i < segments.length; i++) {
+          segments[i].style.backgroundColor = '#1c2432';
+        }
       }
 
-      // HUD Text Info
-      ctx.fillStyle = '#4c5564';
-      ctx.font = '500 10px "JetBrains Mono", monospace';
-      ctx.fillText("DRAG NODES P1–P4 TO SCULPT TRANSIENT ENVELOPE DIRECTLY", PAD_LEFT, 22);
-
-      requestAnimationFrame(render);
+      requestAnimationFrame(renderScope);
     }
-    requestAnimationFrame(render);
-
-    // UI Input Binding
-    const presetSelect = document.getElementById('presetSelect');
-    const waveSelect = document.getElementById('waveSelect');
-    const pitchSlider = document.getElementById('pitchSlider');
-    const decaySlider = document.getElementById('decaySlider');
-    const toneVolSlider = document.getElementById('toneVolSlider');
-    const releaseVolSlider = document.getElementById('releaseVolSlider');
-    const releaseTimeSlider = document.getElementById('releaseTimeSlider');
-    const hpfSlider = document.getElementById('hpfSlider');
-
-    const pitchVal = document.getElementById('pitchVal');
-    const decayVal = document.getElementById('decayVal');
-    const toneVolVal = document.getElementById('toneVolVal');
-    const releaseVolVal = document.getElementById('releaseVolVal');
-    const releaseTimeVal = document.getElementById('releaseTimeVal');
-    const hpfVal = document.getElementById('hpfVal');
+    requestAnimationFrame(renderScope);
 
     function toDb(val) {
       if (val <= 0.01) return "-INF dB";
       return `${(20 * Math.log10(val)).toFixed(1)} dB`;
     }
 
-    function updateInterface() {
-      pitchVal.textContent = `${state.pitch} Hz`;
-      decayVal.textContent = `${Math.round(state.decayMs)} ms`;
-      toneVolVal.textContent = toDb(state.strikeVol);
-      releaseVolVal.textContent = toDb(state.releaseVol);
-      releaseTimeVal.textContent = `${Math.round(state.releaseTimeMs)} ms`;
-      hpfVal.textContent = `${state.hpf} Hz`;
-
-      pitchSlider.value = state.pitch;
-      decaySlider.value = state.decayMs;
-      toneVolSlider.value = state.strikeVol;
-      releaseVolSlider.value = state.releaseVol;
-      releaseTimeSlider.value = state.releaseTimeMs;
-      hpfSlider.value = state.hpf;
-      waveSelect.value = state.wave;
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+      return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+      };
     }
 
-    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); updateInterface(); });
-    decaySlider.addEventListener('input', (e) => { state.decayMs = Number(e.target.value); syncNodesFromState(); updateInterface(); });
-    toneVolSlider.addEventListener('input', (e) => { state.strikeVol = Number(e.target.value); syncNodesFromState(); updateInterface(); });
-    releaseVolSlider.addEventListener('input', (e) => { state.releaseVol = Number(e.target.value); syncNodesFromState(); updateInterface(); });
-    releaseTimeSlider.addEventListener('input', (e) => { state.releaseTimeMs = Number(e.target.value); syncNodesFromState(); updateInterface(); });
-    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); updateInterface(); });
-    waveSelect.addEventListener('change', (e) => { state.wave = e.target.value; triggerClickSound(); });
+    function describeArc(x, y, radius, startAngle, endAngle) {
+      const start = polarToCartesian(x, y, radius, endAngle);
+      const end = polarToCartesian(x, y, radius, startAngle);
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      return [
+        "M", start.x, start.y, 
+        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+      ].join(" ");
+    }
 
-    presetSelect.addEventListener('change', (e) => {
-      const p = e.target.value;
-      if (p === "Standard Optical") {
-        Object.assign(state, { pitch: 1800, decayMs: 16, strikeVol: 0.8, releaseVol: 0.45, releaseTimeMs: 68, hpf: 600, wave: "triangle" });
-      } else if (p === "Crisp Mechanical") {
-        Object.assign(state, { pitch: 2900, decayMs: 9, strikeVol: 0.95, releaseVol: 0.55, releaseTimeMs: 50, hpf: 1100, wave: "triangle" });
-      } else if (p === "Subtle UI Pop") {
-        Object.assign(state, { pitch: 1050, decayMs: 25, strikeVol: 0.65, releaseVol: 0.0, releaseTimeMs: 0, hpf: 300, wave: "sine" });
-      } else if (p === "Deep Switch") {
-        Object.assign(state, { pitch: 900, decayMs: 22, strikeVol: 0.9, releaseVol: 0.35, releaseTimeMs: 85, hpf: 150, wave: "square" });
+    function updateKnobDisplay(knobEl, val) {
+      const min = parseFloat(knobEl.dataset.min);
+      const max = parseFloat(knobEl.dataset.max);
+      const pct = Math.max(0, Math.min(1, (val - min) / (max - min)));
+
+      const startAngle = -135;
+      const endAngle = startAngle + (pct * 270);
+      const trackPath = knobEl.querySelector('.knob-track');
+      const fillPath = knobEl.querySelector('.knob-fill');
+      const needle = knobEl.querySelector('.knob-needle');
+
+      if (trackPath) trackPath.setAttribute('d', describeArc(30, 30, 24, -135, 135));
+      if (fillPath) fillPath.setAttribute('d', describeArc(30, 30, 24, -135, endAngle));
+
+      if (needle) {
+        needle.style.transformOrigin = '30px 30px';
+        needle.style.transform = `rotate(${endAngle}deg)`;
       }
-      syncNodesFromState();
-      updateInterface();
-      triggerClickSound();
+    }
+
+    // Rotary Knob Drag Handling
+    const knobElements = document.querySelectorAll('.rotary-knob');
+    knobElements.forEach(knob => {
+      let isDragging = false;
+      let startY = 0;
+      let startVal = 0;
+
+      const param = knob.dataset.param;
+      const min = parseFloat(knob.dataset.min);
+      const max = parseFloat(knob.dataset.max);
+      const step = parseFloat(knob.dataset.step) || 1;
+
+      knob.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        startVal = state[param];
+        knob.setPointerCapture(e.pointerId);
+      });
+
+      knob.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const deltaY = startY - e.clientY;
+        const range = max - min;
+        const sensitivity = 0.0035 * range;
+        let nextVal = startVal + deltaY * sensitivity;
+        nextVal = Math.max(min, Math.min(max, Math.round(nextVal / step) * step));
+        state[param] = nextVal;
+
+        syncNodesFromState();
+        updateInterface();
+      });
+
+      const stopDrag = () => {
+        if (isDragging) {
+          isDragging = false;
+          if (state.autoAudition) triggerAudition();
+        }
+      };
+      knob.addEventListener('pointerup', stopDrag);
+      knob.addEventListener('pointercancel', stopDrag);
     });
 
-    document.getElementById('fireButton').addEventListener('click', triggerClickSound);
+    function updateInterface() {
+      document.getElementById('lbl-pitch').textContent = `${state.pitch} Hz`;
+      document.getElementById('lbl-strikeVol').textContent = toDb(state.strikeVol);
+      document.getElementById('lbl-decayMs').textContent = `${Math.round(state.decayMs)} ms`;
+      document.getElementById('lbl-hpf').textContent = `${state.hpf} Hz`;
+      document.getElementById('lbl-releaseTimeMs').textContent = `${Math.round(state.releaseTimeMs)} ms`;
+      document.getElementById('lbl-releaseVol').textContent = toDb(state.releaseVol);
+      document.getElementById('lbl-drive').textContent = `${state.drive.toFixed(1)}x`;
+      document.getElementById('lbl-subThump').textContent = `${state.subThump.toFixed(2)}`;
 
-    // .WAV Audio Exporter
-    document.getElementById('renderButton').addEventListener('click', async () => {
+      document.getElementById('noiseMixSlider').value = state.noiseMix;
+      document.getElementById('noiseMixVal').textContent = `${Math.round(state.noiseMix * 100)}%`;
+      document.getElementById('qSlider').value = state.bodyQ;
+      document.getElementById('qVal').textContent = `${state.bodyQ.toFixed(1)}`;
+      document.getElementById('tailSlider').value = state.tailMs;
+      document.getElementById('tailVal').textContent = `${Math.round(state.tailMs)}ms`;
+      document.getElementById('springToggle').checked = state.metallicSpring;
+
+      knobElements.forEach(knob => {
+        const param = knob.dataset.param;
+        updateKnobDisplay(knob, state[param]);
+      });
+
+      document.querySelectorAll('.wave-btn').forEach(btn => {
+        if (btn.dataset.wave === state.wave) {
+          btn.className = "wave-btn active py-0.5 text-[9px] font-mono font-bold rounded bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer";
+        } else {
+          btn.className = "wave-btn py-0.5 text-[9px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer";
+        }
+      });
+    }
+
+    // View Switcher Tabs
+    const viewTabScope = document.getElementById('viewTabScope');
+    const viewTabSeq = document.getElementById('viewTabSeq');
+    const viewTabArena = document.getElementById('viewTabArena');
+
+    const viewScopeContainer = document.getElementById('viewScopeContainer');
+    const viewSeqContainer = document.getElementById('viewSeqContainer');
+    const viewArenaContainer = document.getElementById('viewArenaContainer');
+
+    function setActiveView(tabBtn, containerEl) {
+      document.querySelectorAll('.view-tab').forEach(b => {
+        b.className = "view-tab px-3 py-1 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5";
+      });
+      tabBtn.className = "view-tab active px-3 py-1 rounded text-[11px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 transition-all cursor-pointer flex items-center gap-1.5";
+
+      viewScopeContainer.classList.add('hidden');
+      viewSeqContainer.classList.add('hidden');
+      viewArenaContainer.classList.add('hidden');
+      containerEl.classList.remove('hidden');
+
+      if (containerEl === viewScopeContainer) {
+        setTimeout(resizeCanvas, 30);
+      }
+    }
+
+    viewTabScope.addEventListener('click', () => setActiveView(viewTabScope, viewScopeContainer));
+    viewTabSeq.addEventListener('click', () => setActiveView(viewTabSeq, viewSeqContainer));
+    viewTabArena.addEventListener('click', () => setActiveView(viewTabArena, viewArenaContainer));
+
+    // Timeframe Scale selector
+    document.getElementById('timeScaleSelect').addEventListener('change', (e) => {
+      TOTAL_TIMEFRAME_MS = parseInt(e.target.value);
+      syncNodesFromState();
+    });
+
+    // Wave selector buttons
+    document.querySelectorAll('.wave-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.wave = btn.dataset.wave;
+        updateInterface();
+        if (state.autoAudition) triggerAudition();
+      });
+    });
+
+    // Secondary Slider Listeners
+    document.getElementById('noiseMixSlider').addEventListener('input', (e) => {
+      state.noiseMix = parseFloat(e.target.value);
+      updateInterface();
+    });
+    document.getElementById('qSlider').addEventListener('input', (e) => {
+      state.bodyQ = parseFloat(e.target.value);
+      updateInterface();
+    });
+    document.getElementById('tailSlider').addEventListener('input', (e) => {
+      state.tailMs = parseFloat(e.target.value);
+      syncNodesFromState();
+      updateInterface();
+    });
+    document.getElementById('springToggle').addEventListener('change', (e) => {
+      state.metallicSpring = e.target.checked;
+      if (state.autoAudition) triggerAudition();
+    });
+
+    // Preset Bank Dock
+    const pillsContainer = document.getElementById('presetPillsContainer');
+    presets.forEach((p, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `px-2 py-0.5 rounded font-mono text-[10px] border transition-all cursor-pointer shrink-0 ${idx === 1 ? 'bg-cyan-950/80 border-cyan-500/80 text-cyan-300 font-bold' : 'bg-[#10141d] border-[#1d2533] text-slate-400 hover:text-slate-200'}`;
+      btn.textContent = p.name;
+      btn.addEventListener('click', () => {
+        Object.assign(state, p);
+        syncNodesFromState();
+        updateInterface();
+        if (state.autoAudition) triggerAudition();
+
+        Array.from(pillsContainer.children).forEach(c => {
+          c.className = 'px-2 py-0.5 rounded font-mono text-[10px] border transition-all cursor-pointer shrink-0 bg-[#10141d] border-[#1d2533] text-slate-400 hover:text-slate-200';
+        });
+        btn.className = 'px-2 py-0.5 rounded font-mono text-[10px] border transition-all cursor-pointer shrink-0 bg-cyan-950/80 border-cyan-500/80 text-cyan-300 font-bold';
+      });
+      pillsContainer.appendChild(btn);
+    });
+
+    // A/B Matrix Slots
+    const slotABtn = document.getElementById('slotABtn');
+    const slotBBtn = document.getElementById('slotBBtn');
+    const copyAtoBBtn = document.getElementById('copyAtoBBtn');
+
+    slotABtn.addEventListener('click', () => {
+      if (state.currentSlot === 'B') Object.assign(slotBState, state);
+      state.currentSlot = 'A';
+      Object.assign(state, slotAState);
+      slotABtn.className = "px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-700/60 cursor-pointer transition-all";
+      slotBBtn.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 cursor-pointer transition-all";
+      syncNodesFromState();
+      updateInterface();
+      showToast("Switched to Profile Slot A");
+    });
+
+    slotBBtn.addEventListener('click', () => {
+      if (state.currentSlot === 'A') Object.assign(slotAState, state);
+      state.currentSlot = 'B';
+      Object.assign(state, slotBState);
+      slotBBtn.className = "px-2 py-0.5 rounded font-bold bg-amber-950 text-amber-300 border border-amber-700/60 cursor-pointer transition-all";
+      slotABtn.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 cursor-pointer transition-all";
+      syncNodesFromState();
+      updateInterface();
+      showToast("Switched to Profile Slot B");
+    });
+
+    copyAtoBBtn.addEventListener('click', () => {
+      if (state.currentSlot === 'A') {
+        Object.assign(slotBState, state);
+        showToast("Profile Copied: Slot A ➔ Slot B");
+      } else {
+        Object.assign(slotAState, state);
+        showToast("Profile Copied: Slot B ➔ Slot A");
+      }
+    });
+
+    // 16-Step Sequencer Rack Elements
+    const seqStepsContainer = document.getElementById('seqStepsContainer');
+    for (let i = 0; i < 16; i++) {
+      const stepBtn = document.createElement('button');
+      stepBtn.className = `seq-step h-16 rounded border text-xs font-mono flex flex-col items-center justify-between p-1.5 transition-all cursor-pointer ${sequencerPattern[i] ? 'active border-cyan-400' : 'bg-[#0f141d] border-[#1d2737] text-slate-500'}`;
+      stepBtn.innerHTML = `<span>${i + 1}</span><div class="w-2 h-2 rounded-full ${sequencerPattern[i] ? 'bg-cyan-950' : 'bg-slate-700'}"></div>`;
+      stepBtn.addEventListener('click', () => {
+        sequencerPattern[i] = sequencerPattern[i] ? 0 : 1;
+        stepBtn.className = `seq-step h-16 rounded border text-xs font-mono flex flex-col items-center justify-between p-1.5 transition-all cursor-pointer ${sequencerPattern[i] ? 'active border-cyan-400' : 'bg-[#0f141d] border-[#1d2737] text-slate-500'}`;
+        stepBtn.querySelector('div').className = `w-2 h-2 rounded-full ${sequencerPattern[i] ? 'bg-cyan-950' : 'bg-slate-700'}`;
+      });
+      seqStepsContainer.appendChild(stepBtn);
+    }
+
+    document.getElementById('seqClearBtn').addEventListener('click', () => {
+      for (let i = 0; i < 16; i++) sequencerPattern[i] = 0;
+      Array.from(seqStepsContainer.children).forEach((b, i) => {
+        b.className = "seq-step h-16 rounded border text-xs font-mono flex flex-col items-center justify-between p-1.5 transition-all cursor-pointer bg-[#0f141d] border-[#1d2737] text-slate-500";
+        b.querySelector('div').className = "w-2 h-2 rounded-full bg-slate-700";
+      });
+      showToast("Sequencer Cleared");
+    });
+
+    document.getElementById('seqRandomBtn').addEventListener('click', () => {
+      for (let i = 0; i < 16; i++) sequencerPattern[i] = Math.random() > 0.65 ? 1 : 0;
+      sequencerPattern[0] = 1;
+      Array.from(seqStepsContainer.children).forEach((b, i) => {
+        b.className = `seq-step h-16 rounded border text-xs font-mono flex flex-col items-center justify-between p-1.5 transition-all cursor-pointer ${sequencerPattern[i] ? 'active border-cyan-400' : 'bg-[#0f141d] border-[#1d2737] text-slate-500'}`;
+        b.querySelector('div').className = `w-2 h-2 rounded-full ${sequencerPattern[i] ? 'bg-cyan-950' : 'bg-slate-700'}`;
+      });
+      showToast("Generated Random Mechanical Groove");
+    });
+
+    // Switchboard Arena Interactive Caps
+    document.querySelectorAll('.switch-cap').forEach(cap => {
+      cap.addEventListener('click', () => {
+        const prof = cap.dataset.profile;
+        if (prof === 'blue') Object.assign(state, presets[0]);
+        else if (prof === 'brown') Object.assign(state, presets[2]);
+        else if (prof === 'red') Object.assign(state, presets[3]);
+        else if (prof === 'mouse') Object.assign(state, presets[1]);
+        else if (prof === 'relay') Object.assign(state, presets[4]);
+        syncNodesFromState();
+        updateInterface();
+        triggerAudition(1.0, 0.98 + Math.random() * 0.04);
+      });
+    });
+
+    // Keydown Trigger for Studio Play
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerAudition(1.0);
+      } else if (e.code === 'KeyQ') {
+        Object.assign(state, presets[0]);
+        syncNodesFromState();
+        updateInterface();
+        triggerAudition(1.0);
+      } else if (e.code === 'KeyW') {
+        Object.assign(state, presets[2]);
+        syncNodesFromState();
+        updateInterface();
+        triggerAudition(0.9);
+      } else if (e.code === 'KeyE') {
+        Object.assign(state, presets[3]);
+        syncNodesFromState();
+        updateInterface();
+        triggerAudition(0.85);
+      } else if (e.code === 'KeyR') {
+        Object.assign(state, presets[1]);
+        syncNodesFromState();
+        updateInterface();
+        triggerAudition(0.95);
+      }
+    });
+
+    // Audition Trigger
+    document.getElementById('fireBtn').addEventListener('click', () => triggerAudition(1.0));
+
+    // Auto-Audition Parameter Toggle
+    const autoAuditionBtn = document.getElementById('autoAuditionBtn');
+    const autoAuditionLed = document.getElementById('autoAuditionLed');
+    const autoAuditionStatus = document.getElementById('autoAuditionStatus');
+
+    autoAuditionBtn.addEventListener('click', () => {
+      state.autoAudition = !state.autoAudition;
+      if (state.autoAudition) {
+        autoAuditionLed.style.backgroundColor = 'var(--cyan-neon)';
+        autoAuditionStatus.textContent = 'ON';
+        autoAuditionStatus.className = 'text-cyan-400 font-bold';
+        showToast("Auto-Play: ON (Auditions on parameter adjustment)");
+      } else {
+        autoAuditionLed.style.backgroundColor = '#4b5563';
+        autoAuditionStatus.textContent = 'OFF';
+        autoAuditionStatus.className = 'text-slate-400';
+        showToast("Auto-Play: OFF (Auditions only with Audition button/Space)");
+      }
+    });
+
+    // Metronome / Sequencer Playback Cycle
+    const loopBtn = document.getElementById('loopBtn');
+    const loopLed = document.getElementById('loopLed');
+    const loopStatus = document.getElementById('loopStatus');
+    const bpmSelect = document.getElementById('bpmSelect');
+
+    function startCycleLoop() {
+      if (loopIntervalId) clearInterval(loopIntervalId);
+      const stepDurationMs = (60 / state.bpm) * 1000 / 4; // 16th note steps
+
+      loopIntervalId = setInterval(() => {
+        const isHumanize = document.getElementById('seqHumanizeToggle').checked;
+        const pitchJitter = isHumanize ? (0.97 + Math.random() * 0.06) : 1.0;
+        const velocity = isHumanize ? (0.8 + Math.random() * 0.25) : 1.0;
+
+        // Visual Sequencer Step Highlight
+        const stepButtons = seqStepsContainer.children;
+        for (let s = 0; s < stepButtons.length; s++) {
+          if (s === currentSeqStep) stepButtons[s].classList.add('current');
+          else stepButtons[s].classList.remove('current');
+        }
+
+        if (sequencerPattern[currentSeqStep]) {
+          triggerAudition(velocity, pitchJitter);
+        }
+
+        currentSeqStep = (currentSeqStep + 1) % 16;
+      }, stepDurationMs);
+    }
+
+    loopBtn.addEventListener('click', () => {
+      state.looping = !state.looping;
+      if (state.looping) {
+        loopLed.style.backgroundColor = '#ff3366';
+        loopStatus.textContent = 'ON';
+        loopStatus.className = 'text-rose-400 font-bold';
+        currentSeqStep = 0;
+        startCycleLoop();
+      } else {
+        loopLed.style.backgroundColor = '#4b5563';
+        loopStatus.textContent = 'OFF';
+        loopStatus.className = 'text-slate-400';
+        if (loopIntervalId) clearInterval(loopIntervalId);
+        Array.from(seqStepsContainer.children).forEach(b => b.classList.remove('current'));
+      }
+    });
+
+    bpmSelect.addEventListener('change', (e) => {
+      state.bpm = parseInt(e.target.value);
+      if (state.looping) startCycleLoop();
+    });
+
+    // Mutate / Randomize Profile
+    document.getElementById('randomizeBtn').addEventListener('click', () => {
+      const waves = ["triangle", "sine", "square", "sawtooth"];
+      state.pitch = Math.floor(600 + Math.random() * 3200);
+      state.decayMs = Math.floor(6 + Math.random() * 30);
+      state.strikeVol = parseFloat((0.65 + Math.random() * 0.35).toFixed(2));
+      state.releaseVol = parseFloat((0.15 + Math.random() * 0.55).toFixed(2));
+      state.releaseTimeMs = Math.floor(35 + Math.random() * 80);
+      state.tailMs = state.releaseTimeMs + Math.floor(25 + Math.random() * 40);
+      state.hpf = Math.floor(200 + Math.random() * 1200);
+      state.wave = waves[Math.floor(Math.random() * waves.length)];
+      state.noiseMix = parseFloat((0.2 + Math.random() * 0.6).toFixed(2));
+      state.bodyQ = parseFloat((1.0 + Math.random() * 5.0).toFixed(1));
+      state.drive = parseFloat((1.0 + Math.random() * 2.5).toFixed(1));
+      state.subThump = parseFloat((Math.random() * 0.5).toFixed(2));
+
+      syncNodesFromState();
+      updateInterface();
+      if (state.autoAudition) triggerAudition();
+      showToast("Mutated Kinetic DSP Parameters");
+    });
+
+    // Reset Defaults
+    document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+      Object.assign(state, presets[1]);
+      syncNodesFromState();
+      updateInterface();
+      if (state.autoAudition) triggerAudition();
+      showToast("Reset to Standard Optical Profile");
+    });
+
+    // Power Online / Bypass Toggle
+    const powerBtn = document.getElementById('powerBtn');
+    const powerLed = document.getElementById('powerLed');
+    powerBtn.addEventListener('click', () => {
+      state.active = !state.active;
+      if (state.active) {
+        powerLed.style.backgroundColor = 'var(--cyan-neon)';
+        powerBtn.querySelector('span').textContent = 'ONLINE';
+        powerBtn.querySelector('span').className = 'text-[10px] font-bold tracking-widest font-mono text-cyan-400 group-hover:text-cyan-300';
+      } else {
+        powerLed.style.backgroundColor = '#4b5563';
+        powerBtn.querySelector('span').textContent = 'BYPASS';
+        powerBtn.querySelector('span').className = 'text-[10px] font-bold tracking-widest font-mono text-slate-500';
+      }
+    });
+
+    async function exportRenderedWav(download = true, customVelocity = 1.0, pitchJitter = 1.0, fileName = '') {
       const sampleRate = 44100;
       const duration = (state.tailMs / 1000) + 0.05;
       const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * duration), sampleRate);
 
-      renderClickNodes(offlineCtx, offlineCtx.destination, 0);
+      synthesizeClick(offlineCtx, offlineCtx.destination, 0.002, customVelocity, pitchJitter);
       const audioBuffer = await offlineCtx.startRendering();
 
+      // Encode 16-Bit PCM RIFF WAV
       const length = audioBuffer.length * 2 + 44;
       const out = new DataView(new ArrayBuffer(length));
       let pos = 0;
@@ -929,21 +1757,70 @@
       }
 
       const blob = new Blob([out], { type: 'audio/wav' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `click_sculpt_${state.pitch}Hz.wav`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT') {
-        e.preventDefault();
-        triggerClickSound();
+      if (download) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName || `transient_${state.wave}_${state.pitch}Hz.wav`;
+        a.click();
+        URL.revokeObjectURL(url);
       }
+      return blob;
+    }
+
+    document.getElementById('renderWavBtn').addEventListener('click', () => {
+      showToast("Synthesizing Master WAV File...");
+      exportRenderedWav(true);
     });
 
+    // Multi-Variation Round Robin Batch Exporter
+    document.getElementById('batchExportBtn').addEventListener('click', async () => {
+      showToast("Exporting 4-Sample Dynamic Round-Robin Pack...");
+      const variations = [
+        { vel: 1.0, jitter: 1.0, name: `click_${state.pitch}Hz_RR1_hard.wav` },
+        { vel: 0.85, jitter: 0.98, name: `click_${state.pitch}Hz_RR2_med.wav` },
+        { vel: 0.72, jitter: 1.02, name: `click_${state.pitch}Hz_RR3_soft.wav` },
+        { vel: 0.92, jitter: 1.01, name: `click_${state.pitch}Hz_RR4_accent.wav` }
+      ];
+
+      for (let i = 0; i < variations.length; i++) {
+        const v = variations[i];
+        await new Promise(r => setTimeout(r, 200));
+        await exportRenderedWav(true, v.vel, v.jitter, v.name);
+      }
+      showToast("Round-Robin Pack Downloaded (4 Files)");
+    });
+
+    // Copy Base64 Data URI Helper
+    document.getElementById('copyDataUriBtn').addEventListener('click', async () => {
+      const blob = await exportRenderedWav(false);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = base64data;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+        showToast("WAV Data URI Copied to Clipboard!");
+      };
+      reader.readAsDataURL(blob);
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-16', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0');
+      }, 2500);
+    }
+
+    // Startup Initialization
+    syncNodesFromState();
     updateInterface();
   </script>
 </body>
