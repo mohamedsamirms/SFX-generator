@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transient Click Synthesizer</title>
+  <title>Interactive Transient Shaper // M-Click</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-rack: #121417;
-      --panel-main: #181b20;
-      --panel-well: #0e1013;
-      --panel-surface: #22262d;
-      --border-outer: #2d333b;
-      --border-subtle: #1e2229;
+      --bg-rack: #101216;
+      --panel-main: #16191f;
+      --panel-well: #0c0e11;
+      --panel-surface: #20242c;
+      --border-outer: #2b313a;
+      --border-subtle: #1c2026;
       --accent-cyan: #00d2ff;
-      --accent-active: #0099cc;
+      --accent-orange: #ff9f43;
       --meter-green: #2fe075;
       --meter-yellow: #f5b041;
       --meter-red: #ff4757;
@@ -29,10 +29,11 @@
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
     body {
-      background: #090a0c;
+      background: #08090b;
       color: var(--text-main);
       font-family: var(--font-ui);
       min-height: 100vh;
@@ -44,19 +45,19 @@
 
     .rack-chassis {
       width: 100%;
-      max-width: 820px;
+      max-width: 860px;
       background: var(--panel-main);
       border: 1px solid var(--border-outer);
       border-radius: 8px;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 1px 2px rgba(255, 255, 255, 0.05) inset;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(255, 255, 255, 0.05) inset;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top Control Bar */
+    /* Top Strip */
     .top-bar {
-      background: linear-gradient(180deg, #20242b 0%, #171a1f 100%);
+      background: linear-gradient(180deg, #1f232a 0%, #15181e 100%);
       padding: 0.85rem 1.25rem;
       display: flex;
       justify-content: space-between;
@@ -71,11 +72,11 @@
     }
 
     .led-status {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--accent-cyan);
-      box-shadow: 0 0 8px var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
     }
 
     .device-name {
@@ -95,7 +96,6 @@
       border-radius: 4px;
     }
 
-    /* Metering Strip */
     .meter-cluster {
       display: flex;
       align-items: center;
@@ -116,17 +116,16 @@
     .meter-bar-track {
       width: 90px;
       height: 8px;
-      background: #15181e;
+      background: #14171d;
       border-radius: 2px;
       overflow: hidden;
-      position: relative;
     }
 
     .meter-fill {
       width: 0%;
       height: 100%;
       background: linear-gradient(90deg, var(--meter-green) 0%, var(--meter-yellow) 75%, var(--meter-red) 95%);
-      transition: width 0.05s ease-out;
+      transition: width 0.04s ease-out;
     }
 
     .meter-db {
@@ -137,14 +136,14 @@
       color: var(--accent-cyan);
     }
 
-    /* Oscilloscope Screen */
+    /* Screen with Drag-and-Drop Nodes */
     .scope-viewport {
       position: relative;
       width: 100%;
-      height: 250px;
-      background: radial-gradient(circle at center, #10151c 0%, #080a0d 100%);
+      height: 280px;
+      background: radial-gradient(circle at 50% 50%, #0d121a 0%, #06080b 100%);
       border-bottom: 1px solid var(--border-outer);
-      cursor: crosshair;
+      cursor: default;
     }
 
     canvas {
@@ -153,20 +152,20 @@
       height: 100%;
     }
 
-    /* Parameter Controls Section */
+    /* Control Deck */
     .control-deck {
-      padding: 1.5rem;
+      padding: 1.25rem 1.5rem;
       background: var(--bg-rack);
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .deck-section {
       background: var(--panel-main);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 1rem 1.25rem;
+      padding: 0.9rem 1.15rem;
     }
 
     .section-title {
@@ -176,7 +175,7 @@
       color: var(--text-muted);
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -204,7 +203,7 @@
     .param-unit {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.35rem;
     }
 
     .param-header {
@@ -214,15 +213,14 @@
     }
 
     .param-name {
-      font-size: 0.75rem;
+      font-size: 0.725rem;
       font-weight: 500;
       color: var(--text-muted);
-      letter-spacing: 0.2px;
     }
 
     .param-val {
       font-family: var(--font-dsp);
-      font-size: 0.75rem;
+      font-size: 0.725rem;
       font-weight: 600;
       color: var(--text-main);
     }
@@ -245,21 +243,17 @@
       cursor: pointer;
     }
 
-    select:focus {
-      border-color: var(--accent-cyan);
-    }
-
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
       background: transparent;
-      height: 24px;
+      height: 22px;
       cursor: pointer;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
       height: 3px;
-      background: #262b33;
+      background: #252a33;
       border-radius: 2px;
     }
 
@@ -268,18 +262,16 @@
       height: 14px;
       width: 14px;
       border-radius: 50%;
-      background: #d8dee9;
+      background: #cdd4df;
       margin-top: -5.5px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.6);
-      border: 1px solid #1a1e24;
-      transition: transform 0.05s ease, background 0.1s ease;
+      border: 1px solid #14171d;
+      transition: background 0.1s ease;
     }
 
     input[type="range"]:hover::-webkit-slider-thumb {
       background: var(--accent-cyan);
     }
 
-    /* Master Action Footer */
     .deck-footer {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -291,31 +283,25 @@
       height: 42px;
       border-radius: 4px;
       font-family: var(--font-dsp);
-      font-size: 0.8rem;
+      font-size: 0.775rem;
       font-weight: 600;
       letter-spacing: 0.5px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       transition: all 0.12s ease;
     }
 
     .btn-fire {
-      background: #242932;
+      background: #21252e;
       border: 1px solid var(--border-outer);
       color: var(--accent-cyan);
     }
 
     .btn-fire:hover {
-      background: #2c333e;
+      background: #292f3b;
       border-color: var(--accent-cyan);
-    }
-
-    .btn-fire:active {
-      transform: translateY(1px);
-      background: #191c22;
     }
 
     .btn-render {
@@ -327,24 +313,19 @@
     .btn-render:hover {
       background: linear-gradient(180deg, #388bfd 0%, #1c68e3 100%);
     }
-
-    .btn-render:active {
-      transform: translateY(1px);
-    }
   </style>
 </head>
 <body>
 
   <div class="rack-chassis">
-    <!-- Top Hardware Status Strip -->
+    <!-- Top Bar -->
     <div class="top-bar">
       <div class="device-branding">
-        <div class="led-status" id="ledStatus"></div>
+        <div class="led-status"></div>
         <span class="device-name">TRANSIENT SHAPER // M-CLICK</span>
-        <span class="device-version">DSP 2.4</span>
+        <span class="device-version">DSP 2.5 INTERACTIVE</span>
       </div>
 
-      <!-- Peak Level Meter -->
       <div class="meter-cluster">
         <span class="meter-label">PEAK OUT</span>
         <div class="meter-bar-track">
@@ -354,45 +335,38 @@
       </div>
     </div>
 
-    <!-- Oscilloscope Scope Screen -->
+    <!-- Editable Waveform Canvas -->
     <div class="scope-viewport" id="scopeContainer">
       <canvas id="scopeCanvas"></canvas>
     </div>
 
-    <!-- Parameter Deck -->
+    <!-- Control Deck -->
     <div class="control-deck">
-      
-      <!-- Layer 1: Core Physical Profile -->
       <div class="deck-section">
-        <div class="section-title">01 / Switch Architecture & Resonance</div>
+        <div class="section-title">01 / Switch Architecture & Waveform</div>
         <div class="param-grid">
           <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Profile Model</span>
-            </div>
+            <div class="param-header"><span class="param-name">Preset Profile</span></div>
             <select id="presetSelect">
               <option value="Standard Optical">Standard Optical</option>
               <option value="Crisp Mechanical">Crisp Mechanical</option>
               <option value="Subtle UI Pop">Subtle UI Pop</option>
-              <option value="Deep Gaming Switch">Deep Gaming Switch</option>
-              <option value="Double Click">Double Click</option>
+              <option value="Deep Switch">Deep Switch</option>
             </select>
           </div>
 
           <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Core Waveform</span>
-            </div>
+            <div class="param-header"><span class="param-name">Wave Shape</span></div>
             <select id="waveSelect">
-              <option value="triangle">Triangle (Plastic Body)</option>
-              <option value="sine">Sine (Damped Transient)</option>
-              <option value="square">Square (Hard Metallic Snap)</option>
+              <option value="triangle">Triangle (Plastic Snap)</option>
+              <option value="sine">Sine (Soft Thud)</option>
+              <option value="square">Square (Crisp Edge)</option>
             </select>
           </div>
 
           <div class="param-unit">
             <div class="param-header">
-              <span class="param-name">Fundamental Pitch</span>
+              <span class="param-name">Pitch Center</span>
               <span class="param-val" id="pitchVal">1800 Hz</span>
             </div>
             <input type="range" id="pitchSlider" min="500" max="4000" step="25" value="1800">
@@ -400,84 +374,87 @@
 
           <div class="param-unit">
             <div class="param-header">
-              <span class="param-name">Decay Envelope</span>
-              <span class="param-val" id="decayVal">15 ms</span>
+              <span class="param-name">Down-Decay (P2)</span>
+              <span class="param-val" id="decayVal">16 ms</span>
             </div>
-            <input type="range" id="decaySlider" min="0.004" max="0.050" step="0.001" value="0.015">
+            <input type="range" id="decaySlider" min="5" max="45" step="1" value="16">
           </div>
         </div>
       </div>
 
-      <!-- Layer 2: Texture & Dynamic Response -->
       <div class="deck-section">
-        <div class="section-title">02 / Acoustic Texture & Layer Filtering</div>
+        <div class="section-title">02 / Dynamics, Timbre & Release Stage</div>
         <div class="param-grid">
           <div class="param-unit">
             <div class="param-header">
-              <span class="param-name">Body Transient Level</span>
-              <span class="param-val" id="toneVolVal">-2.0 dB</span>
+              <span class="param-name">Primary Strike (P1)</span>
+              <span class="param-val" id="toneVolVal">-1.9 dB</span>
             </div>
-            <input type="range" id="toneVolSlider" min="0" max="1" step="0.05" value="0.8">
+            <input type="range" id="toneVolSlider" min="0.1" max="1" step="0.05" value="0.8">
           </div>
 
           <div class="param-unit">
             <div class="param-header">
-              <span class="param-name">Friction Noise Level</span>
-              <span class="param-val" id="noiseVolVal">-8.0 dB</span>
+              <span class="param-name">Release Snap (P3)</span>
+              <span class="param-val" id="releaseVolVal">-7.0 dB</span>
             </div>
-            <input type="range" id="noiseVolSlider" min="0" max="1" step="0.05" value="0.4">
+            <input type="range" id="releaseVolSlider" min="0" max="0.9" step="0.05" value="0.45">
           </div>
 
           <div class="param-unit">
             <div class="param-header">
-              <span class="param-name">Low Cut (HPF)</span>
+              <span class="param-name">Release Delay (P3 X)</span>
+              <span class="param-val" id="releaseTimeVal">68 ms</span>
+            </div>
+            <input type="range" id="releaseTimeSlider" min="30" max="140" step="2" value="68">
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">High-Pass Filter</span>
               <span class="param-val" id="hpfVal">600 Hz</span>
             </div>
-            <input type="range" id="hpfSlider" min="100" max="2500" step="50" value="600">
-          </div>
-
-          <div class="param-unit">
-            <div class="param-header">
-              <span class="param-name">Switch Return Delay</span>
-              <span class="param-val" id="releaseVal">70 ms</span>
-            </div>
-            <input type="range" id="releaseSlider" min="30" max="180" step="5" value="70">
+            <input type="range" id="hpfSlider" min="100" max="2000" step="50" value="600">
           </div>
         </div>
       </div>
 
-      <!-- Deck Footer -->
       <div class="deck-footer">
-        <button class="btn-rack btn-fire" id="fireButton">TEST STRIKE [SPACE / CLICK]</button>
+        <button class="btn-rack btn-fire" id="fireButton">TEST STRIKE [SPACE / AUDITION]</button>
         <button class="btn-rack btn-render" id="renderButton">EXPORT 16-BIT .WAV</button>
       </div>
-
     </div>
   </div>
 
   <script>
-    const PRESETS = {
-      "Standard Optical": { pitch: 1800, decay: 0.015, toneVol: 0.8, noiseVol: 0.4, hpf: 600, wave: "triangle", releaseDelay: 70, isDouble: false },
-      "Crisp Mechanical": { pitch: 2800, decay: 0.009, toneVol: 0.9, noiseVol: 0.6, hpf: 1100, wave: "triangle", releaseDelay: 55, isDouble: false },
-      "Subtle UI Pop": { pitch: 1100, decay: 0.025, toneVol: 0.6, noiseVol: 0.15, hpf: 300, wave: "sine", releaseDelay: 0, isDouble: false },
-      "Deep Gaming Switch": { pitch: 950, decay: 0.022, toneVol: 0.95, noiseVol: 0.3, hpf: 200, wave: "square", releaseDelay: 90, isDouble: false },
-      "Double Click": { pitch: 2200, decay: 0.012, toneVol: 0.85, noiseVol: 0.45, hpf: 800, wave: "triangle", releaseDelay: 0, isDouble: true }
-    };
+    const TOTAL_TIMEFRAME_MS = 160; // 0 to 160ms timeline visible
 
     const state = {
       pitch: 1800,
-      decay: 0.015,
-      toneVol: 0.8,
-      noiseVol: 0.4,
+      decayMs: 16,
+      strikeVol: 0.8,
+      releaseVol: 0.45,
+      releaseTimeMs: 68,
+      tailMs: 110,
       hpf: 600,
-      wave: "triangle",
-      releaseDelay: 70,
-      isDouble: false
+      wave: "triangle"
     };
 
+    // Four interactive envelope control nodes
+    // x: time (ms), y: normalized amp (0 to 1)
+    const nodes = [
+      { id: 'strike', x: 2, y: state.strikeVol, label: 'P1: STRIKE ATTACK' },
+      { id: 'decay',  x: 2 + state.decayMs, y: 0.05, label: 'P2: DOWN-DECAY' },
+      { id: 'release',x: state.releaseTimeMs, y: state.releaseVol, label: 'P3: UP-RELEASE' },
+      { id: 'tail',   x: state.tailMs, y: 0.01, label: 'P4: TAIL' }
+    ];
+
     let audioCtx = null;
-    let waveBuffer = [];
+    let activeDragNode = null;
+    let hoveredNode = null;
     let currentPeak = 0;
+    let playheadMs = -1;
+    let playheadStartTime = 0;
 
     function getAudioContext() {
       if (!audioCtx) {
@@ -490,61 +467,65 @@
       return audioCtx;
     }
 
-    function renderClickNodes(ctx, destination, startTime, pitchMod = 1.0, volMod = 1.0) {
-      const pitch = state.pitch * pitchMod;
-      const decay = state.decay;
-      const toneVol = state.toneVol * volMod;
-      const noiseVol = state.noiseVol * volMod;
-
+    function renderClickNodes(ctx, destination, startTime) {
+      const decaySec = Math.max(0.005, state.decayMs / 1000);
       const hpFilter = ctx.createBiquadFilter();
       hpFilter.type = "highpass";
       hpFilter.frequency.setValueAtTime(state.hpf, startTime);
       hpFilter.connect(destination);
 
-      if (toneVol > 0.01) {
+      // 1. Primary strike down-click
+      if (state.strikeVol > 0.01) {
         const osc = ctx.createOscillator();
-        const toneGain = ctx.createGain();
-
+        const gain = ctx.createGain();
         osc.type = state.wave;
-        osc.frequency.setValueAtTime(pitch * 1.6, startTime);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(60, pitch * 0.25), startTime + decay);
+        osc.frequency.setValueAtTime(state.pitch * 1.5, startTime);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(60, state.pitch * 0.2), startTime + decaySec);
 
-        toneGain.gain.setValueAtTime(toneVol, startTime);
-        toneGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decay);
+        gain.gain.setValueAtTime(state.strikeVol, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec);
 
-        osc.connect(toneGain);
-        toneGain.connect(hpFilter);
-
+        osc.connect(gain);
+        gain.connect(hpFilter);
         osc.start(startTime);
-        osc.stop(startTime + decay);
+        osc.stop(startTime + decaySec);
+
+        // Snap Noise
+        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * decaySec));
+        const noiseBuf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const out = noiseBuf.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          out[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(state.strikeVol * 0.4, startTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec);
+        noise.connect(noiseGain);
+        noiseGain.connect(hpFilter);
+        noise.start(startTime);
+        noise.stop(startTime + decaySec);
       }
 
-      if (noiseVol > 0.01) {
-        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * decay));
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
-        }
+      // 2. Up-click / release snap
+      if (state.releaseVol > 0.02 && state.releaseTimeMs > 0) {
+        const relStart = startTime + (state.releaseTimeMs / 1000);
+        const relDecay = Math.max(0.004, decaySec * 0.65);
+        const oscRel = ctx.createOscillator();
+        const gainRel = ctx.createGain();
 
-        const noise = ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
+        oscRel.type = state.wave;
+        oscRel.frequency.setValueAtTime(state.pitch * 1.3, relStart);
+        oscRel.frequency.exponentialRampToValueAtTime(Math.max(80, state.pitch * 0.3), relStart + relDecay);
 
-        const noiseFilter = ctx.createBiquadFilter();
-        noiseFilter.type = "bandpass";
-        noiseFilter.frequency.setValueAtTime(pitch * 1.2, startTime);
-        noiseFilter.Q.setValueAtTime(2.5, startTime);
+        gainRel.gain.setValueAtTime(state.releaseVol, relStart);
+        gainRel.gain.exponentialRampToValueAtTime(0.0001, relStart + relDecay);
 
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(noiseVol, startTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + decay);
-
-        noise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(hpFilter);
-
-        noise.start(startTime);
-        noise.stop(startTime + decay);
+        oscRel.connect(gainRel);
+        gainRel.connect(hpFilter);
+        oscRel.start(relStart);
+        oscRel.stop(relStart + relDecay);
       }
     }
 
@@ -553,48 +534,373 @@
       if (!ctx) return;
 
       const now = ctx.currentTime;
-      renderClickNodes(ctx, ctx.destination, now, 1.0, 1.0);
-
-      if (state.isDouble) {
-        renderClickNodes(ctx, ctx.destination, now + 0.08, 1.05, 0.85);
-      } else if (state.releaseDelay > 0) {
-        renderClickNodes(ctx, ctx.destination, now + (state.releaseDelay / 1000), 0.85, 0.45);
-      }
-
-      // Synthesize audio waveform into oscilloscope buffer
-      waveBuffer = [];
-      const samples = 200;
-      for (let i = 0; i < samples; i++) {
-        const t = i / samples;
-        let env = Math.exp(-t * 9);
-        let sample = Math.sin(t * Math.PI * 30 * (state.pitch / 1000)) * env * state.toneVol;
-        sample += (Math.random() * 2 - 1) * env * state.noiseVol * 0.4;
-
-        if (!state.isDouble && state.releaseDelay > 0 && t > 0.4) {
-          const tRel = (t - 0.4) * 2;
-          const relEnv = Math.exp(-tRel * 10) * 0.45;
-          sample += Math.sin(tRel * Math.PI * 22 * (state.pitch / 1000)) * relEnv;
-        }
-        waveBuffer.push(sample);
-      }
-
-      currentPeak = Math.min(1.0, Math.max(0.1, state.toneVol * 0.85 + state.noiseVol * 0.25));
+      renderClickNodes(ctx, ctx.destination, now);
+      currentPeak = Math.min(1.0, state.strikeVol);
+      playheadStartTime = performance.now();
+      playheadMs = 0;
     }
 
-    // Export .WAV File
-    async function exportToWav() {
-      const sampleRate = 44100;
-      const duration = state.isDouble ? 0.22 : (state.releaseDelay > 0 ? (state.releaseDelay / 1000 + state.decay + 0.04) : state.decay + 0.04);
-      const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * duration), sampleRate);
+    // Interactive Waveform & Envelope Canvas
+    const canvas = document.getElementById('scopeCanvas');
+    const container = document.getElementById('scopeContainer');
+    const ctx = canvas.getContext('2d');
+    const meterFill = document.getElementById('meterFill');
+    const meterText = document.getElementById('meterText');
 
-      renderClickNodes(offlineCtx, offlineCtx.destination, 0, 1.0, 1.0);
-      if (state.isDouble) {
-        renderClickNodes(offlineCtx, offlineCtx.destination, 0.08, 1.05, 0.85);
-      } else if (state.releaseDelay > 0) {
-        renderClickNodes(offlineCtx, offlineCtx.destination, state.releaseDelay / 1000, 0.85, 0.45);
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+
+    function resizeCanvas() {
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvasWidth = rect.width;
+      canvasHeight = rect.height;
+      canvas.width = canvasWidth * dpr;
+      canvas.height = canvasHeight * dpr;
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Time/Amp coordinate transformation helpers
+    const PAD_LEFT = 20;
+    const PAD_RIGHT = 20;
+    const PAD_TOP = 40;
+    const PAD_BOTTOM = 30;
+
+    function toScreenX(ms) {
+      const graphW = canvasWidth - PAD_LEFT - PAD_RIGHT;
+      return PAD_LEFT + (ms / TOTAL_TIMEFRAME_MS) * graphW;
+    }
+
+    function toTimeMs(screenX) {
+      const graphW = canvasWidth - PAD_LEFT - PAD_RIGHT;
+      const clamped = Math.max(PAD_LEFT, Math.min(screenX, canvasWidth - PAD_RIGHT));
+      return ((clamped - PAD_LEFT) / graphW) * TOTAL_TIMEFRAME_MS;
+    }
+
+    function toScreenY(amp) {
+      const midY = canvasHeight / 2;
+      const graphH = (canvasHeight / 2) - PAD_BOTTOM;
+      return midY - (amp * graphH);
+    }
+
+    function toAmp(screenY) {
+      const midY = canvasHeight / 2;
+      const graphH = (canvasHeight / 2) - PAD_BOTTOM;
+      const raw = (midY - screenY) / graphH;
+      return Math.max(0.01, Math.min(raw, 1.0));
+    }
+
+    function syncStateFromNodes() {
+      state.strikeVol = nodes[0].y;
+      state.decayMs = Math.max(4, nodes[1].x - nodes[0].x);
+      state.releaseTimeMs = nodes[2].x;
+      state.releaseVol = nodes[2].y;
+      state.tailMs = Math.max(nodes[2].x + 10, nodes[3].x);
+      updateInterface();
+    }
+
+    function syncNodesFromState() {
+      nodes[0].y = state.strikeVol;
+      nodes[1].x = nodes[0].x + state.decayMs;
+      nodes[2].x = state.releaseTimeMs;
+      nodes[2].y = state.releaseVol;
+      nodes[3].x = Math.max(nodes[2].x + 15, state.tailMs);
+    }
+
+    // Pointer Event Listeners for dragging nodes
+    container.addEventListener('pointerdown', (e) => {
+      const rect = container.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+
+      // Check if clicking existing node
+      let found = null;
+      for (const node of nodes) {
+        const nx = toScreenX(node.x);
+        const ny = toScreenY(node.y);
+        const dist = Math.hypot(px - nx, py - ny);
+        if (dist <= 14) {
+          found = node;
+          break;
+        }
       }
 
+      if (found) {
+        activeDragNode = found;
+        container.setPointerCapture(e.pointerId);
+      } else {
+        triggerClickSound();
+      }
+    });
+
+    container.addEventListener('pointermove', (e) => {
+      const rect = container.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+
+      if (activeDragNode) {
+        // Drag restrictions per node type
+        if (activeDragNode.id === 'strike') {
+          activeDragNode.y = toAmp(py);
+        } else if (activeDragNode.id === 'decay') {
+          activeDragNode.x = Math.max(nodes[0].x + 4, Math.min(toTimeMs(px), nodes[2].x - 5));
+        } else if (activeDragNode.id === 'release') {
+          activeDragNode.x = Math.max(nodes[1].x + 6, Math.min(toTimeMs(px), nodes[3].x - 8));
+          activeDragNode.y = toAmp(py);
+        } else if (activeDragNode.id === 'tail') {
+          activeDragNode.x = Math.max(nodes[2].x + 8, Math.min(toTimeMs(px), TOTAL_TIMEFRAME_MS - 4));
+        }
+
+        syncStateFromNodes();
+      } else {
+        // Hover state
+        hoveredNode = null;
+        for (const node of nodes) {
+          const nx = toScreenX(node.x);
+          const ny = toScreenY(node.y);
+          if (Math.hypot(px - nx, py - ny) <= 12) {
+            hoveredNode = node;
+            break;
+          }
+        }
+        container.style.cursor = hoveredNode ? 'grab' : 'crosshair';
+      }
+    });
+
+    const releasePointer = (e) => {
+      if (activeDragNode) {
+        activeDragNode = null;
+        container.style.cursor = 'default';
+        triggerClickSound();
+      }
+    };
+    container.addEventListener('pointerup', releasePointer);
+    container.addEventListener('pointercancel', releasePointer);
+
+    // Render Oscilloscope & Envelope Overlay
+    let lastRenderTime = performance.now();
+    function render(currentTime) {
+      const dt = Math.min((currentTime - lastRenderTime) / 1000, 0.1);
+      lastRenderTime = currentTime;
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      // 1. Oscilloscope Grid
+      ctx.save();
+      ctx.strokeStyle = '#14181f';
+      ctx.lineWidth = 1;
+
+      // 10ms Division ticks
+      for (let ms = 0; ms <= TOTAL_TIMEFRAME_MS; ms += 20) {
+        const x = toScreenX(ms);
+        ctx.beginPath();
+        ctx.moveTo(x, PAD_TOP - 10);
+        ctx.lineTo(x, canvasHeight - PAD_BOTTOM);
+        ctx.stroke();
+
+        ctx.fillStyle = '#444d5c';
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.fillText(`${ms}ms`, x - 10, canvasHeight - 12);
+      }
+
+      // Horizontal centerline
+      const midY = canvasHeight / 2;
+      ctx.strokeStyle = '#222832';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(PAD_LEFT, midY);
+      ctx.lineTo(canvasWidth - PAD_RIGHT, midY);
+      ctx.stroke();
+      ctx.restore();
+
+      // 2. High-Frequency Transient Oscillations (The Synthetic Audio Signal)
+      ctx.save();
+      ctx.strokeStyle = '#00d2ff';
+      ctx.shadowColor = 'rgba(0, 210, 255, 0.4)';
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      const totalSteps = 240;
+      for (let i = 0; i <= totalSteps; i++) {
+        const ms = (i / totalSteps) * TOTAL_TIMEFRAME_MS;
+        const x = toScreenX(ms);
+
+        // Envelope shape calculation from interactive nodes
+        let env = 0;
+        if (ms < nodes[1].x) {
+          const t = Math.max(0, (ms - nodes[0].x) / (nodes[1].x - nodes[0].x));
+          env = nodes[0].y * Math.exp(-t * 5);
+        } else if (ms >= nodes[1].x && ms < nodes[2].x) {
+          env = 0.02;
+        } else if (ms >= nodes[2].x) {
+          const tRel = Math.max(0, (ms - nodes[2].x) / (nodes[3].x - nodes[2].x));
+          env = nodes[2].y * Math.exp(-tRel * 6);
+        }
+
+        const osc = Math.sin(ms * 0.15 * (state.pitch / 500));
+        const y = midY - (osc * env * ((canvasHeight / 2) - PAD_BOTTOM));
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Interactive Envelope Shaper Curve & Guide
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 159, 67, 0.6)';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(0), toScreenY(0));
+      for (const node of nodes) {
+        ctx.lineTo(toScreenX(node.x), toScreenY(node.y));
+      }
+      ctx.lineTo(toScreenX(TOTAL_TIMEFRAME_MS), toScreenY(0));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // 4. Render Control Nodes (Handles)
+      for (const node of nodes) {
+        const nx = toScreenX(node.x);
+        const ny = toScreenY(node.y);
+        const isHovered = (hoveredNode === node || activeDragNode === node);
+
+        ctx.save();
+        ctx.fillStyle = isHovered ? '#fff' : 'var(--panel-main)';
+        ctx.strokeStyle = isHovered ? '#00d2ff' : '#ff9f43';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(nx, ny, isHovered ? 6.5 : 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Node Label
+        ctx.fillStyle = isHovered ? '#00d2ff' : '#8c95a3';
+        ctx.font = '600 9px "JetBrains Mono", monospace';
+        ctx.fillText(node.label, nx - 16, ny - 12);
+        ctx.restore();
+      }
+
+      // 5. Audio Playhead Sweep
+      if (playheadMs >= 0) {
+        const elapsed = performance.now() - playheadStartTime;
+        playheadMs = elapsed;
+        if (playheadMs <= TOTAL_TIMEFRAME_MS) {
+          const phX = toScreenX(playheadMs);
+          ctx.save();
+          ctx.strokeStyle = '#ff4757';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(phX, PAD_TOP - 15);
+          ctx.lineTo(phX, canvasHeight - PAD_BOTTOM);
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          playheadMs = -1;
+        }
+      }
+
+      // 6. Real-time Peak Output Meter
+      if (currentPeak > 0.001) {
+        currentPeak = Math.max(0, currentPeak - dt * 2.5);
+        const pct = Math.min(100, Math.round(currentPeak * 100));
+        meterFill.style.width = `${pct}%`;
+        const db = 20 * Math.log10(Math.max(0.0001, currentPeak));
+        meterText.textContent = `${db.toFixed(1)} dB`;
+      } else {
+        meterFill.style.width = '0%';
+        meterText.textContent = "-INF dB";
+      }
+
+      // HUD Text Info
+      ctx.fillStyle = '#4c5564';
+      ctx.font = '500 10px "JetBrains Mono", monospace';
+      ctx.fillText("DRAG NODES P1–P4 TO SCULPT TRANSIENT ENVELOPE DIRECTLY", PAD_LEFT, 22);
+
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    // UI Input Binding
+    const presetSelect = document.getElementById('presetSelect');
+    const waveSelect = document.getElementById('waveSelect');
+    const pitchSlider = document.getElementById('pitchSlider');
+    const decaySlider = document.getElementById('decaySlider');
+    const toneVolSlider = document.getElementById('toneVolSlider');
+    const releaseVolSlider = document.getElementById('releaseVolSlider');
+    const releaseTimeSlider = document.getElementById('releaseTimeSlider');
+    const hpfSlider = document.getElementById('hpfSlider');
+
+    const pitchVal = document.getElementById('pitchVal');
+    const decayVal = document.getElementById('decayVal');
+    const toneVolVal = document.getElementById('toneVolVal');
+    const releaseVolVal = document.getElementById('releaseVolVal');
+    const releaseTimeVal = document.getElementById('releaseTimeVal');
+    const hpfVal = document.getElementById('hpfVal');
+
+    function toDb(val) {
+      if (val <= 0.01) return "-INF dB";
+      return `${(20 * Math.log10(val)).toFixed(1)} dB`;
+    }
+
+    function updateInterface() {
+      pitchVal.textContent = `${state.pitch} Hz`;
+      decayVal.textContent = `${Math.round(state.decayMs)} ms`;
+      toneVolVal.textContent = toDb(state.strikeVol);
+      releaseVolVal.textContent = toDb(state.releaseVol);
+      releaseTimeVal.textContent = `${Math.round(state.releaseTimeMs)} ms`;
+      hpfVal.textContent = `${state.hpf} Hz`;
+
+      pitchSlider.value = state.pitch;
+      decaySlider.value = state.decayMs;
+      toneVolSlider.value = state.strikeVol;
+      releaseVolSlider.value = state.releaseVol;
+      releaseTimeSlider.value = state.releaseTimeMs;
+      hpfSlider.value = state.hpf;
+      waveSelect.value = state.wave;
+    }
+
+    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); updateInterface(); });
+    decaySlider.addEventListener('input', (e) => { state.decayMs = Number(e.target.value); syncNodesFromState(); updateInterface(); });
+    toneVolSlider.addEventListener('input', (e) => { state.strikeVol = Number(e.target.value); syncNodesFromState(); updateInterface(); });
+    releaseVolSlider.addEventListener('input', (e) => { state.releaseVol = Number(e.target.value); syncNodesFromState(); updateInterface(); });
+    releaseTimeSlider.addEventListener('input', (e) => { state.releaseTimeMs = Number(e.target.value); syncNodesFromState(); updateInterface(); });
+    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); updateInterface(); });
+    waveSelect.addEventListener('change', (e) => { state.wave = e.target.value; triggerClickSound(); });
+
+    presetSelect.addEventListener('change', (e) => {
+      const p = e.target.value;
+      if (p === "Standard Optical") {
+        Object.assign(state, { pitch: 1800, decayMs: 16, strikeVol: 0.8, releaseVol: 0.45, releaseTimeMs: 68, hpf: 600, wave: "triangle" });
+      } else if (p === "Crisp Mechanical") {
+        Object.assign(state, { pitch: 2900, decayMs: 9, strikeVol: 0.95, releaseVol: 0.55, releaseTimeMs: 50, hpf: 1100, wave: "triangle" });
+      } else if (p === "Subtle UI Pop") {
+        Object.assign(state, { pitch: 1050, decayMs: 25, strikeVol: 0.65, releaseVol: 0.0, releaseTimeMs: 0, hpf: 300, wave: "sine" });
+      } else if (p === "Deep Switch") {
+        Object.assign(state, { pitch: 900, decayMs: 22, strikeVol: 0.9, releaseVol: 0.35, releaseTimeMs: 85, hpf: 150, wave: "square" });
+      }
+      syncNodesFromState();
+      updateInterface();
+      triggerClickSound();
+    });
+
+    document.getElementById('fireButton').addEventListener('click', triggerClickSound);
+
+    // .WAV Audio Exporter
+    document.getElementById('renderButton').addEventListener('click', async () => {
+      const sampleRate = 44100;
+      const duration = (state.tailMs / 1000) + 0.05;
+      const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * duration), sampleRate);
+
+      renderClickNodes(offlineCtx, offlineCtx.destination, 0);
       const audioBuffer = await offlineCtx.startRendering();
+
       const length = audioBuffer.length * 2 + 44;
       const out = new DataView(new ArrayBuffer(length));
       let pos = 0;
@@ -607,12 +913,10 @@
       setU32(0x45564157); // "WAVE"
       setU32(0x20746d66); // "fmt "
       setU32(16);
-      setU16(1); // PCM
-      setU16(1); // Mono
+      setU16(1); setU16(1);
       setU32(sampleRate);
       setU32(sampleRate * 2);
-      setU16(2);
-      setU16(16); // 16-bit
+      setU16(2); setU16(16);
       setU32(0x61746164); // "data"
       setU32(length - pos - 4);
 
@@ -628,185 +932,10 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `transient_click_${state.pitch}Hz.wav`;
+      a.download = `click_sculpt_${state.pitch}Hz.wav`;
       a.click();
       URL.revokeObjectURL(url);
-    }
-
-    // Oscilloscope Grid & Drawing
-    const canvas = document.getElementById('scopeCanvas');
-    const container = document.getElementById('scopeContainer');
-    const ctx = canvas.getContext('2d');
-    const meterFill = document.getElementById('meterFill');
-    const meterText = document.getElementById('meterText');
-
-    function resizeCanvas() {
-      const rect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.resetTransform();
-      ctx.scale(dpr, dpr);
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    container.addEventListener('pointerdown', () => triggerClickSound());
-
-    let lastTime = performance.now();
-    function renderScope(time) {
-      const dt = Math.min((time - lastTime) / 1000, 0.1);
-      lastTime = time;
-
-      const rect = container.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-
-      ctx.clearRect(0, 0, w, h);
-
-      // Digital Oscilloscope Reticle Grid
-      ctx.save();
-      ctx.strokeStyle = '#161c24';
-      ctx.lineWidth = 1;
-
-      // Vertical divisions
-      const vDivs = 10;
-      for (let i = 1; i < vDivs; i++) {
-        const x = (w / vDivs) * i;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-
-      // Horizontal divisions
-      const hDivs = 6;
-      for (let i = 1; i < hDivs; i++) {
-        const y = (h / hDivs) * i;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      // Center Reference Axes
-      ctx.strokeStyle = '#252d38';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, h / 2);
-      ctx.lineTo(w, h / 2);
-      ctx.stroke();
-      ctx.restore();
-
-      // Telemetry HUD overlay in canvas
-      ctx.fillStyle = '#4c5564';
-      ctx.font = '500 10px "JetBrains Mono", monospace';
-      ctx.fillText("TIME BASE: 10ms/DIV", 14, 20);
-      ctx.fillText(`FILTER: ${state.hpf}Hz HPF`, 14, 34);
-      ctx.textAlign = 'right';
-      ctx.fillText("TRANSIENT TIME DOMAIN", w - 14, 20);
-      ctx.textAlign = 'left';
-
-      // Waveform Rendering
-      if (waveBuffer.length > 0) {
-        ctx.save();
-        ctx.strokeStyle = '#00d2ff';
-        ctx.shadowColor = 'rgba(0, 210, 255, 0.5)';
-        ctx.shadowBlur = 8;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-
-        const padX = 14;
-        const drawW = w - (padX * 2);
-        const step = drawW / (waveBuffer.length - 1);
-        const midY = h / 2;
-        const amp = (h / 2) - 28;
-
-        for (let i = 0; i < waveBuffer.length; i++) {
-          const x = padX + i * step;
-          const y = midY - waveBuffer[i] * amp;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // Peak Decay Metering
-      if (currentPeak > 0.001) {
-        currentPeak = Math.max(0, currentPeak - dt * 2.2);
-        const pct = Math.min(100, Math.round(currentPeak * 100));
-        meterFill.style.width = `${pct}%`;
-        const db = 20 * Math.log10(Math.max(0.0001, currentPeak));
-        meterText.textContent = `${db.toFixed(1)} dB`;
-      } else {
-        meterFill.style.width = '0%';
-        meterText.textContent = "-INF dB";
-      }
-
-      requestAnimationFrame(renderScope);
-    }
-    requestAnimationFrame(renderScope);
-
-    // Inputs and Real-Time Calibration
-    const presetSelect = document.getElementById('presetSelect');
-    const waveSelect = document.getElementById('waveSelect');
-    const pitchSlider = document.getElementById('pitchSlider');
-    const decaySlider = document.getElementById('decaySlider');
-    const toneVolSlider = document.getElementById('toneVolSlider');
-    const noiseVolSlider = document.getElementById('noiseVolSlider');
-    const hpfSlider = document.getElementById('hpfSlider');
-    const releaseSlider = document.getElementById('releaseSlider');
-
-    const pitchVal = document.getElementById('pitchVal');
-    const decayVal = document.getElementById('decayVal');
-    const toneVolVal = document.getElementById('toneVolVal');
-    const noiseVolVal = document.getElementById('noiseVolVal');
-    const hpfVal = document.getElementById('hpfVal');
-    const releaseVal = document.getElementById('releaseVal');
-
-    function toDbString(val) {
-      if (val <= 0.01) return "-INF dB";
-      const db = 20 * Math.log10(val);
-      return `${db.toFixed(1)} dB`;
-    }
-
-    function syncInterface() {
-      pitchVal.textContent = `${state.pitch} Hz`;
-      decayVal.textContent = `${Math.round(state.decay * 1000)} ms`;
-      toneVolVal.textContent = toDbString(state.toneVol);
-      noiseVolVal.textContent = toDbString(state.noiseVol);
-      hpfVal.textContent = `${state.hpf} Hz`;
-      releaseVal.textContent = state.releaseDelay > 0 ? `${state.releaseDelay} ms` : "OFF";
-
-      pitchSlider.value = state.pitch;
-      decaySlider.value = state.decay;
-      toneVolSlider.value = state.toneVol;
-      noiseVolSlider.value = state.noiseVol;
-      hpfSlider.value = state.hpf;
-      releaseSlider.value = state.releaseDelay;
-      waveSelect.value = state.wave;
-    }
-
-    presetSelect.addEventListener('change', (e) => {
-      const p = PRESETS[e.target.value];
-      if (p) {
-        Object.assign(state, p);
-        syncInterface();
-        triggerClickSound();
-      }
     });
-
-    waveSelect.addEventListener('change', (e) => { state.wave = e.target.value; triggerClickSound(); });
-    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); syncInterface(); });
-    decaySlider.addEventListener('input', (e) => { state.decay = Number(e.target.value); syncInterface(); });
-    toneVolSlider.addEventListener('input', (e) => { state.toneVol = Number(e.target.value); syncInterface(); });
-    noiseVolSlider.addEventListener('input', (e) => { state.noiseVol = Number(e.target.value); syncInterface(); });
-    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); syncInterface(); });
-    releaseSlider.addEventListener('input', (e) => { state.releaseDelay = Number(e.target.value); syncInterface(); });
-
-    document.getElementById('fireButton').addEventListener('click', triggerClickSound);
-    document.getElementById('renderButton').addEventListener('click', exportToWav);
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT') {
@@ -814,6 +943,8 @@
         triggerClickSound();
       }
     });
+
+    updateInterface();
   </script>
 </body>
 </html>
