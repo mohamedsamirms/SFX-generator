@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Mouse Click Synthesizer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Code:wght@400;500&display=swap" rel="stylesheet">
+  <title>Transient Click Synthesizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d1117;
-      --card-bg: #161b22;
-      --panel-bg: #21262d;
-      --accent: #58a6ff;
-      --accent-active: #1f6feb;
-      --accent-green: #3fb950;
-      --text: #f0f6fc;
-      --text-muted: #8b949e;
-      --border: #30363d;
-      --font-sans: "Google Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: "Google Sans Code", monospace;
+      --bg-rack: #121417;
+      --panel-main: #181b20;
+      --panel-well: #0e1013;
+      --panel-surface: #22262d;
+      --border-outer: #2d333b;
+      --border-subtle: #1e2229;
+      --accent-cyan: #00d2ff;
+      --accent-active: #0099cc;
+      --meter-green: #2fe075;
+      --meter-yellow: #f5b041;
+      --meter-red: #ff4757;
+      --text-main: #e6edf3;
+      --text-muted: #7d8590;
+      --font-ui: "Inter", -apple-system, sans-serif;
+      --font-dsp: "JetBrains Mono", monospace;
     }
 
     * {
@@ -28,72 +32,119 @@
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
+      background: #090a0c;
+      color: var(--text-main);
+      font-family: var(--font-ui);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
     }
 
-    .container {
+    .rack-chassis {
       width: 100%;
-      max-width: 760px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
+      max-width: 820px;
+      background: var(--panel-main);
+      border: 1px solid var(--border-outer);
+      border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 1px 2px rgba(255, 255, 255, 0.05) inset;
       overflow: hidden;
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
     }
 
-    .header {
-      padding: 1.25rem 1.75rem;
+    /* Top Control Bar */
+    .top-bar {
+      background: linear-gradient(180deg, #20242b 0%, #171a1f 100%);
+      padding: 0.85rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-outer);
     }
 
-    .header-title {
-      font-size: 1.25rem;
+    .device-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .led-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    .device-name {
+      font-family: var(--font-dsp);
+      font-size: 0.825rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #fff;
+    }
+
+    .device-version {
+      font-family: var(--font-dsp);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border-outer);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Metering Strip */
+    .meter-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel-well);
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .meter-label {
+      font-family: var(--font-dsp);
+      font-size: 0.65rem;
+      color: var(--text-muted);
       font-weight: 600;
     }
 
-    .hud-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: var(--panel-bg);
-      padding: 0.4rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+    .meter-bar-track {
+      width: 90px;
+      height: 8px;
+      background: #15181e;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
     }
 
-    .hud-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
+    .meter-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--meter-green) 0%, var(--meter-yellow) 75%, var(--meter-red) 95%);
+      transition: width 0.05s ease-out;
     }
 
-    .hud-value {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--accent);
+    .meter-db {
+      font-family: var(--font-dsp);
+      font-size: 0.7rem;
+      width: 52px;
+      text-align: right;
+      color: var(--accent-cyan);
     }
 
-    .viz-panel {
+    /* Oscilloscope Screen */
+    .scope-viewport {
       position: relative;
       width: 100%;
-      height: 320px;
-      background: #090d13;
-      cursor: pointer;
+      height: 250px;
+      background: radial-gradient(circle at center, #10151c 0%, #080a0d 100%);
+      border-bottom: 1px solid var(--border-outer);
+      cursor: crosshair;
     }
 
     canvas {
@@ -102,315 +153,315 @@
       height: 100%;
     }
 
-    .controls-grid {
-      padding: 1.5rem 1.75rem;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.2rem 1.5rem;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
+    /* Parameter Controls Section */
+    .control-deck {
+      padding: 1.5rem;
+      background: var(--bg-rack);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    @media (max-width: 600px) {
-      .controls-grid {
-        grid-template-columns: 1fr;
+    .deck-section {
+      background: var(--panel-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+    }
+
+    .section-title {
+      font-family: var(--font-dsp);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    .param-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 720px) {
+      .param-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    .control-row {
+    .param-unit {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.4rem;
     }
 
-    .control-header {
+    .param-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 0.825rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      align-items: baseline;
     }
 
-    .control-val {
-      font-family: var(--font-mono);
-      color: var(--text);
+    .param-name {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+    }
+
+    .param-val {
+      font-family: var(--font-dsp);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
     }
 
     select, input[type="range"] {
       width: 100%;
-      height: 38px;
-      border-radius: 10px;
       outline: none;
-      font-family: var(--font-sans);
     }
 
     select {
-      background: var(--panel-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0 0.85rem;
-      font-size: 0.875rem;
+      height: 32px;
+      background: var(--panel-surface);
+      border: 1px solid var(--border-outer);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 0.775rem;
+      font-weight: 500;
+      padding: 0 0.5rem;
+      border-radius: 4px;
       cursor: pointer;
+    }
+
+    select:focus {
+      border-color: var(--accent-cyan);
     }
 
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
       background: transparent;
+      height: 24px;
       cursor: pointer;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
-      height: 5px;
-      background: var(--panel-bg);
-      border-radius: 999px;
+      height: 3px;
+      background: #262b33;
+      border-radius: 2px;
     }
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      height: 18px;
-      width: 18px;
+      height: 14px;
+      width: 14px;
       border-radius: 50%;
-      background: var(--accent);
-      margin-top: -6.5px;
-      box-shadow: 0 0 0 2px var(--card-bg);
-      transition: transform 0.1s ease;
+      background: #d8dee9;
+      margin-top: -5.5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      border: 1px solid #1a1e24;
+      transition: transform 0.05s ease, background 0.1s ease;
     }
 
-    input[type="range"]:active::-webkit-slider-thumb {
-      transform: scale(1.2);
+    input[type="range"]:hover::-webkit-slider-thumb {
+      background: var(--accent-cyan);
     }
 
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 38px;
-      padding: 0 0.25rem;
-    }
-
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider-toggle {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      transition: 0.2s;
-    }
-
-    .slider-toggle:before {
-      position: absolute;
-      content: "";
-      height: 16px;
-      width: 16px;
-      left: 3px;
-      bottom: 3px;
-      background-color: var(--text-muted);
-      border-radius: 50%;
-      transition: 0.2s;
-    }
-
-    input:checked + .slider-toggle {
-      background-color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    input:checked + .slider-toggle:before {
-      transform: translateX(20px);
-      background-color: #000;
-    }
-
-    .button-group {
-      grid-column: 1 / -1;
+    /* Master Action Footer */
+    .deck-footer {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 1rem;
-      margin-top: 0.5rem;
+      margin-top: 0.25rem;
     }
 
-    @media (max-width: 480px) {
-      .button-group {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .btn {
-      height: 44px;
-      font-size: 0.95rem;
+    .btn-rack {
+      height: 42px;
+      border-radius: 4px;
+      font-family: var(--font-dsp);
+      font-size: 0.8rem;
       font-weight: 600;
-      border: none;
-      border-radius: 999px;
+      letter-spacing: 0.5px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s ease;
-      font-family: var(--font-sans);
+      gap: 8px;
+      transition: all 0.12s ease;
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #000;
+    .btn-fire {
+      background: #242932;
+      border: 1px solid var(--border-outer);
+      color: var(--accent-cyan);
     }
 
-    .btn-primary:hover {
-      background: #79b8ff;
+    .btn-fire:hover {
+      background: #2c333e;
+      border-color: var(--accent-cyan);
     }
 
-    .btn-primary:active {
-      transform: scale(0.98);
-      background: var(--accent-active);
+    .btn-fire:active {
+      transform: translateY(1px);
+      background: #191c22;
+    }
+
+    .btn-render {
+      background: linear-gradient(180deg, #1f6feb 0%, #1554bb 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
     }
 
-    .btn-secondary {
-      background: var(--panel-bg);
-      color: var(--text);
-      border: 1px solid var(--border);
+    .btn-render:hover {
+      background: linear-gradient(180deg, #388bfd 0%, #1c68e3 100%);
     }
 
-    .btn-secondary:hover {
-      border-color: var(--accent-green);
-      color: var(--accent-green);
-    }
-
-    .btn-secondary:active {
-      transform: scale(0.98);
+    .btn-render:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header">
-      <h1 class="header-title">Mouse Click Sound Lab</h1>
-      <div class="hud-pill">
-        <span class="hud-label">Clicks</span>
-        <span class="hud-value" id="hudCount">0</span>
+  <div class="rack-chassis">
+    <!-- Top Hardware Status Strip -->
+    <div class="top-bar">
+      <div class="device-branding">
+        <div class="led-status" id="ledStatus"></div>
+        <span class="device-name">TRANSIENT SHAPER // M-CLICK</span>
+        <span class="device-version">DSP 2.4</span>
+      </div>
+
+      <!-- Peak Level Meter -->
+      <div class="meter-cluster">
+        <span class="meter-label">PEAK OUT</span>
+        <div class="meter-bar-track">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span class="meter-db" id="meterText">-INF dB</span>
       </div>
     </div>
 
-    <div class="viz-panel" id="vizContainer">
-      <canvas id="vizCanvas"></canvas>
+    <!-- Oscilloscope Scope Screen -->
+    <div class="scope-viewport" id="scopeContainer">
+      <canvas id="scopeCanvas"></canvas>
     </div>
 
-    <div class="controls-grid">
-      <!-- Preset Selection -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Preset Profile</span>
+    <!-- Parameter Deck -->
+    <div class="control-deck">
+      
+      <!-- Layer 1: Core Physical Profile -->
+      <div class="deck-section">
+        <div class="section-title">01 / Switch Architecture & Resonance</div>
+        <div class="param-grid">
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Profile Model</span>
+            </div>
+            <select id="presetSelect">
+              <option value="Standard Optical">Standard Optical</option>
+              <option value="Crisp Mechanical">Crisp Mechanical</option>
+              <option value="Subtle UI Pop">Subtle UI Pop</option>
+              <option value="Deep Gaming Switch">Deep Gaming Switch</option>
+              <option value="Double Click">Double Click</option>
+            </select>
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Core Waveform</span>
+            </div>
+            <select id="waveSelect">
+              <option value="triangle">Triangle (Plastic Body)</option>
+              <option value="sine">Sine (Damped Transient)</option>
+              <option value="square">Square (Hard Metallic Snap)</option>
+            </select>
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Fundamental Pitch</span>
+              <span class="param-val" id="pitchVal">1800 Hz</span>
+            </div>
+            <input type="range" id="pitchSlider" min="500" max="4000" step="25" value="1800">
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Decay Envelope</span>
+              <span class="param-val" id="decayVal">15 ms</span>
+            </div>
+            <input type="range" id="decaySlider" min="0.004" max="0.050" step="0.001" value="0.015">
+          </div>
         </div>
-        <select id="presetSelect">
-          <option value="Standard Optical">Standard Optical</option>
-          <option value="Crisp Mechanical">Crisp Mechanical</option>
-          <option value="Subtle UI Pop">Subtle UI Pop</option>
-          <option value="Deep Gaming Switch">Deep Gaming Switch</option>
-          <option value="Double Click">Double Click</option>
-        </select>
       </div>
 
-      <!-- Oscillator Waveform Type -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Switch Tone Shape</span>
+      <!-- Layer 2: Texture & Dynamic Response -->
+      <div class="deck-section">
+        <div class="section-title">02 / Acoustic Texture & Layer Filtering</div>
+        <div class="param-grid">
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Body Transient Level</span>
+              <span class="param-val" id="toneVolVal">-2.0 dB</span>
+            </div>
+            <input type="range" id="toneVolSlider" min="0" max="1" step="0.05" value="0.8">
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Friction Noise Level</span>
+              <span class="param-val" id="noiseVolVal">-8.0 dB</span>
+            </div>
+            <input type="range" id="noiseVolSlider" min="0" max="1" step="0.05" value="0.4">
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Low Cut (HPF)</span>
+              <span class="param-val" id="hpfVal">600 Hz</span>
+            </div>
+            <input type="range" id="hpfSlider" min="100" max="2500" step="50" value="600">
+          </div>
+
+          <div class="param-unit">
+            <div class="param-header">
+              <span class="param-name">Switch Return Delay</span>
+              <span class="param-val" id="releaseVal">70 ms</span>
+            </div>
+            <input type="range" id="releaseSlider" min="30" max="180" step="5" value="70">
+          </div>
         </div>
-        <select id="waveSelect">
-          <option value="triangle">Triangle (Hollow/Plastic)</option>
-          <option value="sine">Sine (Soft & Pure)</option>
-          <option value="square">Square (Hard/Sharp)</option>
-        </select>
       </div>
 
-      <!-- Pitch Control -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Pitch Center</span>
-          <span class="control-val" id="pitchVal">1800 Hz</span>
-        </div>
-        <input type="range" id="pitchSlider" min="500" max="4000" step="25" value="1800">
+      <!-- Deck Footer -->
+      <div class="deck-footer">
+        <button class="btn-rack btn-fire" id="fireButton">TEST STRIKE [SPACE / CLICK]</button>
+        <button class="btn-rack btn-render" id="renderButton">EXPORT 16-BIT .WAV</button>
       </div>
 
-      <!-- Click Decay -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Click Decay</span>
-          <span class="control-val" id="decayVal">15 ms</span>
-        </div>
-        <input type="range" id="decaySlider" min="0.004" max="0.050" step="0.001" value="0.015">
-      </div>
-
-      <!-- Tone Layer Balance -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Transient Tone Vol</span>
-          <span class="control-val" id="toneVolVal">80%</span>
-        </div>
-        <input type="range" id="toneVolSlider" min="0" max="1" step="0.05" value="0.8">
-      </div>
-
-      <!-- Plastic Noise Snappiness -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>Friction Noise Vol</span>
-          <span class="control-val" id="noiseVolVal">40%</span>
-        </div>
-        <input type="range" id="noiseVolSlider" min="0" max="1" step="0.05" value="0.4">
-      </div>
-
-      <!-- High Pass Cutoff -->
-      <div class="control-row">
-        <div class="control-header">
-          <span>High-Pass Low Cut</span>
-          <span class="control-val" id="hpfVal">600 Hz</span>
-        </div>
-        <input type="range" id="hpfSlider" min="100" max="2500" step="50" value="600">
-      </div>
-
-      <!-- Release Click Toggle & Delay -->
-      <div class="control-row">
-        <div class="toggle-row">
-          <span style="font-size:0.825rem; font-weight:500; color:var(--text-muted)">Tactile Release Click</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="releaseToggle" checked>
-            <span class="slider-toggle"></span>
-          </label>
-        </div>
-        <div class="control-header" style="margin-top: 4px;">
-          <span>Release Delay</span>
-          <span class="control-val" id="releaseVal">70 ms</span>
-        </div>
-        <input type="range" id="releaseSlider" min="30" max="180" step="5" value="70">
-      </div>
-
-      <div class="button-group">
-        <button class="btn btn-primary" id="clickButton">Click to Audition</button>
-        <button class="btn btn-secondary" id="wavExportBtn">Download .WAV</button>
-      </div>
     </div>
   </div>
 
   <script>
     const PRESETS = {
-      "Standard Optical": { pitch: 1800, decay: 0.015, toneVol: 0.8, noiseVol: 0.4, hpf: 600, wave: "triangle", release: true, releaseDelay: 70, isDouble: false },
-      "Crisp Mechanical": { pitch: 2800, decay: 0.009, toneVol: 0.9, noiseVol: 0.6, hpf: 1100, wave: "triangle", release: true, releaseDelay: 55, isDouble: false },
-      "Subtle UI Pop": { pitch: 1100, decay: 0.025, toneVol: 0.6, noiseVol: 0.15, hpf: 300, wave: "sine", release: false, releaseDelay: 60, isDouble: false },
-      "Deep Gaming Switch": { pitch: 950, decay: 0.022, toneVol: 0.95, noiseVol: 0.3, hpf: 200, wave: "square", release: true, releaseDelay: 90, isDouble: false },
-      "Double Click": { pitch: 2200, decay: 0.012, toneVol: 0.85, noiseVol: 0.45, hpf: 800, wave: "triangle", release: false, releaseDelay: 60, isDouble: true }
+      "Standard Optical": { pitch: 1800, decay: 0.015, toneVol: 0.8, noiseVol: 0.4, hpf: 600, wave: "triangle", releaseDelay: 70, isDouble: false },
+      "Crisp Mechanical": { pitch: 2800, decay: 0.009, toneVol: 0.9, noiseVol: 0.6, hpf: 1100, wave: "triangle", releaseDelay: 55, isDouble: false },
+      "Subtle UI Pop": { pitch: 1100, decay: 0.025, toneVol: 0.6, noiseVol: 0.15, hpf: 300, wave: "sine", releaseDelay: 0, isDouble: false },
+      "Deep Gaming Switch": { pitch: 950, decay: 0.022, toneVol: 0.95, noiseVol: 0.3, hpf: 200, wave: "square", releaseDelay: 90, isDouble: false },
+      "Double Click": { pitch: 2200, decay: 0.012, toneVol: 0.85, noiseVol: 0.45, hpf: 800, wave: "triangle", releaseDelay: 0, isDouble: true }
     };
 
     const state = {
@@ -420,20 +471,18 @@
       noiseVol: 0.4,
       hpf: 600,
       wave: "triangle",
-      release: true,
       releaseDelay: 70,
-      isDouble: false,
-      clickCount: 0
+      isDouble: false
     };
 
     let audioCtx = null;
-    let wavePoints = [];
-    let waveIntensity = 0;
+    let waveBuffer = [];
+    let currentPeak = 0;
 
     function getAudioContext() {
       if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtxClass) audioCtx = new AudioCtxClass();
       }
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -500,9 +549,6 @@
     }
 
     function triggerClickSound() {
-      state.clickCount++;
-      document.getElementById('hudCount').textContent = state.clickCount;
-
       const ctx = getAudioContext();
       if (!ctx) return;
 
@@ -510,98 +556,89 @@
       renderClickNodes(ctx, ctx.destination, now, 1.0, 1.0);
 
       if (state.isDouble) {
-        renderClickNodes(ctx, ctx.destination, now + 0.08, 1.05, 0.9);
-      } else if (state.release) {
-        renderClickNodes(ctx, ctx.destination, now + (state.releaseDelay / 1000), 0.85, 0.5);
+        renderClickNodes(ctx, ctx.destination, now + 0.08, 1.05, 0.85);
+      } else if (state.releaseDelay > 0) {
+        renderClickNodes(ctx, ctx.destination, now + (state.releaseDelay / 1000), 0.85, 0.45);
       }
 
-      // Synthesize transient preview curve for the visualizer
-      wavePoints = [];
-      const samples = 140;
+      // Synthesize audio waveform into oscilloscope buffer
+      waveBuffer = [];
+      const samples = 200;
       for (let i = 0; i < samples; i++) {
         const t = i / samples;
-        let env = Math.exp(-t * 7);
-        let sample = Math.sin(t * Math.PI * 24 * (state.pitch / 1000)) * env * state.toneVol;
+        let env = Math.exp(-t * 9);
+        let sample = Math.sin(t * Math.PI * 30 * (state.pitch / 1000)) * env * state.toneVol;
         sample += (Math.random() * 2 - 1) * env * state.noiseVol * 0.4;
 
-        if (state.release && t > 0.45) {
-          const tRel = (t - 0.45) * 2;
-          const relEnv = Math.exp(-tRel * 8) * 0.45;
-          sample += Math.sin(tRel * Math.PI * 18 * (state.pitch / 1000)) * relEnv;
+        if (!state.isDouble && state.releaseDelay > 0 && t > 0.4) {
+          const tRel = (t - 0.4) * 2;
+          const relEnv = Math.exp(-tRel * 10) * 0.45;
+          sample += Math.sin(tRel * Math.PI * 22 * (state.pitch / 1000)) * relEnv;
         }
-        wavePoints.push(sample);
+        waveBuffer.push(sample);
       }
-      waveIntensity = 1.0;
+
+      currentPeak = Math.min(1.0, Math.max(0.1, state.toneVol * 0.85 + state.noiseVol * 0.25));
     }
 
-    // Audio Buffer Exporter to .WAV
+    // Export .WAV File
     async function exportToWav() {
       const sampleRate = 44100;
-      const duration = state.isDouble ? 0.25 : (state.release ? (state.releaseDelay / 1000 + state.decay + 0.05) : state.decay + 0.05);
+      const duration = state.isDouble ? 0.22 : (state.releaseDelay > 0 ? (state.releaseDelay / 1000 + state.decay + 0.04) : state.decay + 0.04);
       const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * duration), sampleRate);
 
       renderClickNodes(offlineCtx, offlineCtx.destination, 0, 1.0, 1.0);
       if (state.isDouble) {
-        renderClickNodes(offlineCtx, offlineCtx.destination, 0.08, 1.05, 0.9);
-      } else if (state.release) {
-        renderClickNodes(offlineCtx, offlineCtx.destination, state.releaseDelay / 1000, 0.85, 0.5);
+        renderClickNodes(offlineCtx, offlineCtx.destination, 0.08, 1.05, 0.85);
+      } else if (state.releaseDelay > 0) {
+        renderClickNodes(offlineCtx, offlineCtx.destination, state.releaseDelay / 1000, 0.85, 0.45);
       }
 
       const audioBuffer = await offlineCtx.startRendering();
-      const wavBlob = audioBufferToWavBlob(audioBuffer);
-      const url = URL.createObjectURL(wavBlob);
+      const length = audioBuffer.length * 2 + 44;
+      const out = new DataView(new ArrayBuffer(length));
+      let pos = 0;
+
+      const setU16 = (d) => { out.setUint16(pos, d, true); pos += 2; };
+      const setU32 = (d) => { out.setUint32(pos, d, true); pos += 4; };
+
+      setU32(0x46464952); // "RIFF"
+      setU32(length - 8);
+      setU32(0x45564157); // "WAVE"
+      setU32(0x20746d66); // "fmt "
+      setU32(16);
+      setU16(1); // PCM
+      setU16(1); // Mono
+      setU32(sampleRate);
+      setU32(sampleRate * 2);
+      setU16(2);
+      setU16(16); // 16-bit
+      setU32(0x61746164); // "data"
+      setU32(length - pos - 4);
+
+      const chan = audioBuffer.getChannelData(0);
+      for (let i = 0; i < audioBuffer.length; i++) {
+        let s = Math.max(-1, Math.min(1, chan[i]));
+        s = (s < 0 ? s * 0x8000 : s * 0x7FFF) | 0;
+        out.setInt16(pos, s, true);
+        pos += 2;
+      }
+
+      const blob = new Blob([out], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `click_${state.pitch}Hz_${Math.round(state.decay * 1000)}ms.wav`;
+      a.download = `transient_click_${state.pitch}Hz.wav`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    function audioBufferToWavBlob(buffer) {
-      const numOfChan = buffer.numberOfChannels;
-      const length = buffer.length * numOfChan * 2 + 44;
-      const out = new DataView(new ArrayBuffer(length));
-      const channels = [];
-      let sample = 0;
-      let offset = 0;
-      let pos = 0;
-
-      function setUint16(data) { out.setUint16(pos, data, true); pos += 2; }
-      function setUint32(data) { out.setUint32(pos, data, true); pos += 4; }
-
-      // WAV Header
-      setUint32(0x46464952); // "RIFF"
-      setUint32(length - 8);
-      setUint32(0x45564157); // "WAVE"
-      setUint32(0x20746d66); // "fmt "
-      setUint32(16); // subchunk1size
-      setUint16(1);  // PCM
-      setUint16(numOfChan);
-      setUint32(buffer.sampleRate);
-      setUint32(buffer.sampleRate * 2 * numOfChan);
-      setUint16(numOfChan * 2);
-      setUint16(16); // 16-bit
-      setUint32(0x61746164); // "data"
-      setUint32(length - pos - 4);
-
-      for (let i = 0; i < buffer.numberOfChannels; i++) channels.push(buffer.getChannelData(i));
-
-      while (offset < buffer.length) {
-        for (let i = 0; i < numOfChan; i++) {
-          sample = Math.max(-1, Math.min(1, channels[i][offset]));
-          sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF) | 0;
-          out.setInt16(pos, sample, true);
-          pos += 2;
-        }
-        offset++;
-      }
-      return new Blob([out], { type: 'audio/wav' });
-    }
-
-    // Canvas visualizer
-    const canvas = document.getElementById('vizCanvas');
-    const container = document.getElementById('vizContainer');
+    // Oscilloscope Grid & Drawing
+    const canvas = document.getElementById('scopeCanvas');
+    const container = document.getElementById('scopeContainer');
     const ctx = canvas.getContext('2d');
+    const meterFill = document.getElementById('meterFill');
+    const meterText = document.getElementById('meterText');
 
     function resizeCanvas() {
       const rect = container.getBoundingClientRect();
@@ -617,113 +654,101 @@
     container.addEventListener('pointerdown', () => triggerClickSound());
 
     let lastTime = performance.now();
-    function render(currentTime) {
-      const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
-      lastTime = currentTime;
+    function renderScope(time) {
+      const dt = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
 
       const rect = container.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height;
+      const w = rect.width;
+      const h = rect.height;
 
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, w, h);
 
-      const cx = width / 2;
-      const cy = height / 2 - 25;
-      const maxRadius = Math.min(width, height) * 0.28;
+      // Digital Oscilloscope Reticle Grid
+      ctx.save();
+      ctx.strokeStyle = '#161c24';
+      ctx.lineWidth = 1;
 
-      if (waveIntensity > 0) {
-        waveIntensity = Math.max(0, waveIntensity - dt * 2.8);
-      }
-
-      // Dynamic Shockwave
-      if (waveIntensity > 0) {
-        ctx.save();
-        ctx.strokeStyle = `rgba(88, 166, 255, ${waveIntensity * 0.6})`;
-        ctx.lineWidth = 3;
+      // Vertical divisions
+      const vDivs = 10;
+      for (let i = 1; i < vDivs; i++) {
+        const x = (w / vDivs) * i;
         ctx.beginPath();
-        ctx.arc(cx, cy, maxRadius + (1 - waveIntensity) * 55, 0, Math.PI * 2);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
         ctx.stroke();
-        ctx.restore();
       }
 
-      // Center Pad
-      ctx.save();
-      const padRadius = maxRadius * (1 - waveIntensity * 0.06);
-      ctx.fillStyle = '#161b22';
-      ctx.strokeStyle = '#58a6ff';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(cx, cy, padRadius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      // Horizontal divisions
+      const hDivs = 6;
+      for (let i = 1; i < hDivs; i++) {
+        const y = (h / hDivs) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
 
-      ctx.fillStyle = '#f0f6fc';
-      ctx.font = '600 14px "Google Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText("TAP OR CLICK TO FIRE SFX", cx, cy - 8);
-
-      ctx.font = '500 11px "Google Sans Code", monospace';
-      ctx.fillStyle = '#8b949e';
-      ctx.fillText(`${state.pitch}Hz | ${(state.decay*1000).toFixed(0)}ms | HPF:${state.hpf}Hz`, cx, cy + 14);
-      ctx.restore();
-
-      // Oscilloscope Container
-      const boxH = 68;
-      const boxY = height - boxH - 14;
-      const boxW = Math.min(width - 40, 560);
-      const boxX = (width - boxW) / 2;
-
-      ctx.save();
-      ctx.fillStyle = '#161b22';
-      ctx.strokeStyle = '#30363d';
+      // Center Reference Axes
+      ctx.strokeStyle = '#252d38';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(boxX, boxY, boxW, boxH, 10);
-      ctx.fill();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
       ctx.stroke();
+      ctx.restore();
 
-      // Grid line
-      ctx.strokeStyle = '#21262d';
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(boxX + 12, boxY + boxH / 2);
-      ctx.lineTo(boxX + boxW - 12, boxY + boxH / 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // Telemetry HUD overlay in canvas
+      ctx.fillStyle = '#4c5564';
+      ctx.font = '500 10px "JetBrains Mono", monospace';
+      ctx.fillText("TIME BASE: 10ms/DIV", 14, 20);
+      ctx.fillText(`FILTER: ${state.hpf}Hz HPF`, 14, 34);
+      ctx.textAlign = 'right';
+      ctx.fillText("TRANSIENT TIME DOMAIN", w - 14, 20);
+      ctx.textAlign = 'left';
 
-      // Waveform trace
-      if (wavePoints.length > 0) {
-        ctx.strokeStyle = '#58a6ff';
+      // Waveform Rendering
+      if (waveBuffer.length > 0) {
+        ctx.save();
+        ctx.strokeStyle = '#00d2ff';
+        ctx.shadowColor = 'rgba(0, 210, 255, 0.5)';
+        ctx.shadowBlur = 8;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        const startX = boxX + 14;
-        const endX = boxX + boxW - 14;
-        const stepX = (endX - startX) / (wavePoints.length - 1);
-        const centerY = boxY + boxH / 2;
-        const amp = (boxH / 2 - 8);
 
-        for (let i = 0; i < wavePoints.length; i++) {
-          const x = startX + i * stepX;
-          const y = centerY - wavePoints[i] * amp * Math.max(0.2, waveIntensity);
+        const padX = 14;
+        const drawW = w - (padX * 2);
+        const step = drawW / (waveBuffer.length - 1);
+        const midY = h / 2;
+        const amp = (h / 2) - 28;
+
+        for (let i = 0; i < waveBuffer.length; i++) {
+          const x = padX + i * step;
+          const y = midY - waveBuffer[i] * amp;
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
+        ctx.restore();
       }
 
-      ctx.fillStyle = '#8b949e';
-      ctx.font = '500 10px "Google Sans Code", monospace';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText("TRANSIENT IMPULSE", boxX + 12, boxY + 8);
-      ctx.restore();
+      // Peak Decay Metering
+      if (currentPeak > 0.001) {
+        currentPeak = Math.max(0, currentPeak - dt * 2.2);
+        const pct = Math.min(100, Math.round(currentPeak * 100));
+        meterFill.style.width = `${pct}%`;
+        const db = 20 * Math.log10(Math.max(0.0001, currentPeak));
+        meterText.textContent = `${db.toFixed(1)} dB`;
+      } else {
+        meterFill.style.width = '0%';
+        meterText.textContent = "-INF dB";
+      }
 
-      requestAnimationFrame(render);
+      requestAnimationFrame(renderScope);
     }
-    requestAnimationFrame(render);
+    requestAnimationFrame(renderScope);
 
-    // Bind controls to parameters
+    // Inputs and Real-Time Calibration
     const presetSelect = document.getElementById('presetSelect');
     const waveSelect = document.getElementById('waveSelect');
     const pitchSlider = document.getElementById('pitchSlider');
@@ -731,7 +756,6 @@
     const toneVolSlider = document.getElementById('toneVolSlider');
     const noiseVolSlider = document.getElementById('noiseVolSlider');
     const hpfSlider = document.getElementById('hpfSlider');
-    const releaseToggle = document.getElementById('releaseToggle');
     const releaseSlider = document.getElementById('releaseSlider');
 
     const pitchVal = document.getElementById('pitchVal');
@@ -741,13 +765,19 @@
     const hpfVal = document.getElementById('hpfVal');
     const releaseVal = document.getElementById('releaseVal');
 
-    function syncUI() {
+    function toDbString(val) {
+      if (val <= 0.01) return "-INF dB";
+      const db = 20 * Math.log10(val);
+      return `${db.toFixed(1)} dB`;
+    }
+
+    function syncInterface() {
       pitchVal.textContent = `${state.pitch} Hz`;
       decayVal.textContent = `${Math.round(state.decay * 1000)} ms`;
-      toneVolVal.textContent = `${Math.round(state.toneVol * 100)}%`;
-      noiseVolVal.textContent = `${Math.round(state.noiseVol * 100)}%`;
+      toneVolVal.textContent = toDbString(state.toneVol);
+      noiseVolVal.textContent = toDbString(state.noiseVol);
       hpfVal.textContent = `${state.hpf} Hz`;
-      releaseVal.textContent = `${state.releaseDelay} ms`;
+      releaseVal.textContent = state.releaseDelay > 0 ? `${state.releaseDelay} ms` : "OFF";
 
       pitchSlider.value = state.pitch;
       decaySlider.value = state.decay;
@@ -755,7 +785,6 @@
       noiseVolSlider.value = state.noiseVol;
       hpfSlider.value = state.hpf;
       releaseSlider.value = state.releaseDelay;
-      releaseToggle.checked = state.release;
       waveSelect.value = state.wave;
     }
 
@@ -763,22 +792,28 @@
       const p = PRESETS[e.target.value];
       if (p) {
         Object.assign(state, p);
-        syncUI();
+        syncInterface();
         triggerClickSound();
       }
     });
 
     waveSelect.addEventListener('change', (e) => { state.wave = e.target.value; triggerClickSound(); });
-    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); syncUI(); });
-    decaySlider.addEventListener('input', (e) => { state.decay = Number(e.target.value); syncUI(); });
-    toneVolSlider.addEventListener('input', (e) => { state.toneVol = Number(e.target.value); syncUI(); });
-    noiseVolSlider.addEventListener('input', (e) => { state.noiseVol = Number(e.target.value); syncUI(); });
-    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); syncUI(); });
-    releaseToggle.addEventListener('change', (e) => { state.release = e.target.checked; triggerClickSound(); });
-    releaseSlider.addEventListener('input', (e) => { state.releaseDelay = Number(e.target.value); syncUI(); });
+    pitchSlider.addEventListener('input', (e) => { state.pitch = Number(e.target.value); syncInterface(); });
+    decaySlider.addEventListener('input', (e) => { state.decay = Number(e.target.value); syncInterface(); });
+    toneVolSlider.addEventListener('input', (e) => { state.toneVol = Number(e.target.value); syncInterface(); });
+    noiseVolSlider.addEventListener('input', (e) => { state.noiseVol = Number(e.target.value); syncInterface(); });
+    hpfSlider.addEventListener('input', (e) => { state.hpf = Number(e.target.value); syncInterface(); });
+    releaseSlider.addEventListener('input', (e) => { state.releaseDelay = Number(e.target.value); syncInterface(); });
 
-    document.getElementById('clickButton').addEventListener('click', triggerClickSound);
-    document.getElementById('wavExportBtn').addEventListener('click', exportToWav);
+    document.getElementById('fireButton').addEventListener('click', triggerClickSound);
+    document.getElementById('renderButton').addEventListener('click', exportToWav);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        triggerClickSound();
+      }
+    });
   </script>
 </body>
 </html>
